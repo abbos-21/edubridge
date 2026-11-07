@@ -1,0 +1,668 @@
+=====================================================================
+EDUBRIDGE v2 — FULL-STACK TECHNICAL SPECIFICATION + PROMPT FOR CLAUDE
+=====================================================================
+Date: 2026-11-07
+Owner: Pulatov Elmurod
+Supersedes: EduBridge_TZ.docx (frontend-only) and extends EduBridge_Documentation.docx
+
+HOW TO USE THIS FILE
+Paste or attach this whole file to Claude Code at the root of the existing
+EduBridge repository. Part A is the instruction to Claude. Parts B-N are the
+specification it must follow. Claude works phase by phase (Part L) and stops
+for approval after each phase.
+
+
+=====================================================================
+PART A — PROMPT FOR CLAUDE (READ FIRST)
+=====================================================================
+
+ROLE
+You are a senior full-stack engineer (TypeScript, Node, PostgreSQL, React,
+security-minded) taking over EduBridge, an existing React + TypeScript + Vite
+single-page app that helps students from Uzbekistan choose universities and
+scholarships in 5 countries. The current app has NO backend: all user data is
+in localStorage, the catalogue is compiled into the bundle, and AI works only
+through the claude.ai artifact runtime or a tiny Node proxy. Your job is to add
+a real backend and turn EduBridge into a proper product, without breaking what
+already works or the honesty rules in Part C.
+
+HOW TO WORK
+1. Before writing code, read the whole repository (README, package.json,
+   src/lib/ai.ts, src/store/AppStore.tsx, src/data/*, server/index.mjs,
+   scripts/*, tests/*). Then write a short plan (files to add/change, risks)
+   and wait for my "go" only for Phase 0. After that, proceed phase by phase.
+2. Work in the phases of Part L. One phase = one branch/PR-sized unit. After
+   each phase: run `npm test`, `npm run typecheck`, the new backend tests and
+   the frontend build; report results honestly (failures included); then stop
+   and wait for approval before the next phase.
+3. Never invent data. Never weaken a rule in Part C to make something easier.
+   If a requirement is ambiguous or conflicts with the existing code, ask me
+   one concrete question with 2-3 ready options and a recommendation.
+4. Keep changes small and reversible. Do not rewrite working modules. Do not
+   delete the legacy data layer until Phase 5 (Part L) and only with my OK.
+5. Secrets: never commit .env files, API keys or tokens. Provide .env.example
+   only. Never put a secret in frontend code or in any VITE_* variable.
+6. Every new feature ships with tests and, when it adds user-visible text, with
+   Uzbek, Russian and English strings (Part J).
+7. Commit only when I ask. When you do, use clear messages.
+8. Keep a running file docs/PROGRESS.md: what is done, what is next, open
+   questions. Update it at the end of every phase.
+
+DEFINITION OF DONE (every task)
+- Acceptance criteria in this file pass.
+- `npm test` (frontend, existing 49 tests) stays green; new tests added.
+- `npm run typecheck` clean for both web and api packages.
+- No new console errors at 390 px and 1280 px.
+- Docs updated (README, API docs, docs/PROGRESS.md).
+
+
+=====================================================================
+PART B — PRODUCT SUMMARY AND GOALS
+=====================================================================
+
+EduBridge is a trilingual (Uzbek Latin default / Russian / English) study-abroad
+navigator for students from Uzbekistan: 5 countries (Malaysia, Hungary,
+Germany, Turkiye, South Korea), 50 universities (10 per country in 3 groups:
+3 highly selective, 4 balanced, 3 more accessible), 7 national grants (MTCP,
+MIS, Turkiye Burslari, Stipendium Hungaricum, DAAD EPOS, GKS-U, GKS-G), an AI
+advisor, a profile builder, application plans, calendar and budget.
+
+WHY A BACKEND
+The frontend-only design is a ceiling: no accounts, no cross-device sync, no
+real admin, no reminders, no controlled AI cost, no data freshness automation.
+v2 adds a backend so that:
+G1. Students can sign in and keep profile, plans, documents and chats across
+    devices, privately and deletably.
+G2. The AI works everywhere (not only on claude.ai) through a secure,
+    rate-limited, cost-controlled server proxy.
+G3. The catalogue lives in a database with an admin interface, review
+    workflow and audit trail, instead of Python dicts and manual builds.
+G4. Facts stay fresh: automated monthly source checks produce a reviewed
+    change list; nothing is published without human approval.
+G5. Students get reminders (Telegram bot, calendar files) and can share a
+    one-page summary.
+G6. The product is safe to run on a public domain.
+
+NON-GOALS (still out of scope)
+- Admission or scholarship probabilities of any kind.
+- Submitting applications on behalf of students; storing university portal
+  passwords.
+- Payments, native mobile app, countries beyond the five.
+
+USERS / ROLES
+- Guest: browses catalogue, uses demo profiles, rule-based tools. No account.
+- Student: signed in; owns private data; uses AI within quota.
+- Editor: can edit catalogue drafts and submit for review.
+- Admin (owner): approves publication, manages users/roles, quotas, sees
+  audit log and cost dashboard.
+
+
+=====================================================================
+PART C — NON-NEGOTIABLE RULES (carry over from v1, must stay true)
+=====================================================================
+
+DATA HONESTY
+C1. Every fact shown as official has a source URL and a check date. Anything
+    not found stays empty and the UI says "not confirmed".
+C2. Never invent IELTS, GPA, fees, deadlines, grant amounts or links.
+    Aggregator websites are not sources.
+C3. IELTS is used for matching only when ieltsScope = "general".
+C4. A missing value is never shown as zero or "free".
+C5. Past deadlines show as "closed" with their year; unverified dates never
+    produce suggested task dates.
+C6. Grant criteria are never shown as university entry requirements.
+C7. Groups (tiers) are EduBridge guidance, not an official classification.
+    QS 2027 values name the page they came from.
+C8. NO admission or scholarship probability anywhere (UI, API, AI output).
+
+AI HONESTY
+C9. One advisor identity: honest criticism first; eligibility is never
+    presented as likely selection.
+C10. Official facts only from catalogue records passed in the prompt
+     (ground() picks at most 20). The AI cannot browse and must say so.
+C11. Links not in grounded records are flagged "unverified" (checkLinks).
+     Quotes in analyses are verified against the student's text (quoteIn).
+C12. Every structured AI reply is validated; a malformed reply is an error,
+     never a fake analysis.
+C13. Only minimalProfile() reaches the AI (no name, birth year, institution).
+     Documents go to chat only when the student switches sharing on.
+C14. Rewrites use [placeholders] for facts only the student knows; originals
+     are never overwritten.
+
+PRIVACY / SECURITY
+C15. Never ask for or store university application passwords; the UI says so
+     next to every apply link.
+C16. Collect the minimum. Student can export and delete all their data.
+C17. No secrets in frontend code. Admin tools only behind real server-side
+     authorisation (the old client-side AdminGate is NOT sufficient).
+C18. Respect websites' terms and robots.txt; do not bypass logins/CAPTCHAs.
+
+
+=====================================================================
+PART D — TARGET ARCHITECTURE
+=====================================================================
+
+REPOSITORY (monorepo, npm workspaces)
+  /apps/web        existing React 18 + TS + Vite 5 + Tailwind app (moved here)
+  /apps/api        NEW Fastify (TypeScript) REST API
+  /apps/worker     NEW background jobs (re-check, reminders, bot sender)
+  /packages/shared shared TypeScript types, Zod schemas, constants (Lang, L,
+                   catalogue types, AI validators' shapes)
+  /infra           Docker, Compose, Caddy/Nginx config, backup scripts
+  /data-batches, /scripts, /tests   kept; scripts updated for DB import
+If moving the web app causes risk, keep it at the repo root and add the other
+packages beside it — decide in Phase 0 and tell me.
+
+STACK
+- API: Node 22, Fastify 5, TypeScript strict, Zod for validation,
+  Prisma ORM, PostgreSQL 16.
+- Queue/scheduling: pg-boss (Postgres-backed; no Redis needed) or BullMQ+Redis
+  if you justify it in Phase 0.
+- Auth: Telegram Login Widget verification + Google OAuth 2.0 (OIDC);
+  server-side sessions in httpOnly, Secure, SameSite=Lax cookies (no JWT in
+  localStorage). CSRF protection for state-changing requests.
+- AI: server-side Anthropic SDK; models from env (ANTHROPIC_MODEL, _QUICK,
+  _COMPLEX) — default claude-sonnet-5-5.
+- Object storage: NOT needed for documents at first (text only, see F5).
+- Telegram bot: grammY (or Telegraf) running in the worker, webhook mode.
+- Tests: Vitest (api/shared) + existing Node test runner for web; Supertest
+  or Fastify inject for API; Testcontainers or a docker Postgres for DB tests.
+- Reverse proxy: Caddy (automatic HTTPS) in Docker Compose.
+- Observability: pino structured logs, /health and /ready endpoints,
+  basic metrics (request count/latency, AI tokens/cost), Sentry optional.
+
+HOSTING (decision made: own domain + VPS/Docker)
+docker-compose.yml services: caddy, web (static build), api, worker,
+postgres, (optional) backup job. One `docker compose up -d` brings it up.
+Environment via .env on the server; secrets never in images.
+
+AI MODE (assumed default; tell me if you disagree)
+Backend proxy with the project's API key. All AI calls from the web app go to
+POST /api/v1/ai/* — the frontend no longer talks to the claude.ai runtime by
+default. Keep the old provider in src/lib/ai.ts as an optional fallback behind
+a feature flag so the claude.ai artifact build still works (do not delete it).
+
+
+=====================================================================
+PART E — DATABASE DESIGN (PostgreSQL via Prisma)
+=====================================================================
+
+Create migrations (never edit the DB by hand). Use uuid primary keys,
+created_at/updated_at on every table, soft-delete only where stated.
+
+IDENTITY
+- users(id, display_name?, lang, role[student|editor|admin], created_at,
+  deleted_at?)
+- auth_identities(id, user_id, provider[telegram|google], provider_user_id,
+  email?, telegram_username?, UNIQUE(provider, provider_user_id))
+- sessions(id, user_id, token_hash, user_agent?, ip_hash?, expires_at,
+  revoked_at?)
+
+STUDENT DATA (private, per user)
+- profiles(user_id PK, data jsonb)               -- StudentProfile
+- applications(id, user_id, opportunity_ref, data jsonb)   -- plans + tasks
+- saved_items(id, user_id, kind, ref)
+- custom_events(id, user_id, data jsonb)
+- budgets(id, user_id, data jsonb)
+- chat_threads(id, user_id, title, data jsonb)
+- advisor_docs(id, user_id, kind, title, original_text, working_text,
+  analysis jsonb, history jsonb)   -- text only, never the file
+- interviews(id, user_id, data jsonb)
+- growth_plans(user_id PK, data jsonb)
+- reminders(id, user_id, kind, ref, due_at, channel[telegram|email?],
+  status[pending|sent|cancelled], sent_at?)
+- user_settings(user_id PK, data jsonb)          -- currency, AI sharing, etc.
+Keep jsonb shapes identical to the existing frontend types so migration from
+localStorage is a straight copy; validate with Zod from packages/shared.
+
+CATALOGUE (public read, admin write)
+- countries(id, code[MY|HU|DE|TR|KR], data jsonb, ...)
+- universities(id, country_code, order, tier, name, short, city, campus jsonb,
+  type, website, ranking jsonb, admissions jsonb, apply jsonb, fee jsonb,
+  last_checked, status[draft|in_review|published|hidden], version)
+- university_levels(id, university_id, level[bachelor|master], data jsonb)
+  -- open, academic, language, exams, intake, note{en,uz,ru}, ielts,
+  -- ieltsScope, tuition, deadline, example, apply, sources[]
+- grants(id, ... as grant record in the v1 TZ, status, version)
+- university_scholarships(id, university_id, data jsonb, sources)
+- sources(id, url, kind, entity_type, entity_id, field, last_checked_at,
+  last_status, last_hash, http_status, blocks_automation boolean)
+- catalogue_revisions(id, entity_type, entity_id, version, data jsonb,
+  author_id, status, created_at, reviewed_by?, reviewed_at?, comment?)
+Published API reads only status=published rows. Edits create a revision in
+draft; publishing needs an Admin approval (Part G).
+
+OPERATIONS
+- ai_usage(id, user_id, task, tier, model, input_tokens, output_tokens,
+  cost_usd_est, status, created_at)
+- audit_log(id, actor_id, action, entity_type, entity_id, diff jsonb,
+  ip_hash?, created_at)
+- recheck_runs(id, started_at, finished_at, summary jsonb)
+- recheck_findings(id, run_id, source_id, kind[changed|broken|blocked|moved],
+  old_hash, new_hash, snippet_diff, status[open|accepted|dismissed],
+  reviewed_by?, reviewed_at?)
+- telegram_links(user_id, chat_id, linked_at, opt_in boolean)
+- rate_limit state is kept in memory/Postgres, not a separate table unless
+  needed.
+
+IMPORT
+Write scripts/import_catalog.ts that loads src/data/db/catalog.json (and the
+grants) into the DB as published revisions, idempotently, preserving ids and
+sources. After import, a test must prove: 5 countries x 10 universities,
+tier split 3/4/3 per country, unique ids, every fact has a source, QS values
+have sources, no uniform IELTS (the same guards as tests/logic.test.ts, now
+run against the DB).
+
+
+=====================================================================
+PART F — BACKEND FUNCTIONAL REQUIREMENTS
+=====================================================================
+
+All endpoints under /api/v1, JSON, Zod-validated input and output, consistent
+error shape {error:{code,message,details?}}, request id in every response.
+Document with OpenAPI (fastify-swagger), served at /api/docs in non-prod only.
+
+F1 — AUTH AND ACCOUNTS (replaces FR-17)
+- POST /auth/telegram   verify Telegram Login Widget payload (HMAC with bot
+  token, auth_date freshness <= 10 min), create/find user, set session cookie.
+- GET  /auth/google/start, /auth/google/callback  (OIDC, state + PKCE).
+- POST /auth/logout; GET /me; PATCH /me (lang, display name).
+- Account linking: a signed-in user can link the second provider.
+- Sessions: 30-day sliding expiry, revocable, list/revoke other sessions.
+- No password storage anywhere. No email or phone collected unless Google
+  provides email (store only if needed for account recovery; show it to the
+  user).
+- Guests keep working with localStorage exactly as today. On first sign-in the
+  app offers "Upload local data to your account" (see F2).
+Acceptance: forged Telegram payload rejected; expired payload rejected;
+session cookie is httpOnly+Secure+SameSite; logout invalidates server-side;
+account deletion removes the user and all rows (tested).
+
+F2 — SYNC OF STUDENT DATA (replaces FR-17 sync)
+- REST resources per table in Part E: GET/PUT/DELETE on /me/profile,
+  /me/applications, /me/documents, /me/chats, /me/interviews, /me/growth,
+  /me/budgets, /me/events, /me/saved, /me/settings.
+- Optimistic concurrency: each record has `version` (or updated_at); PUT with
+  stale version returns 409 with the server copy. Frontend merges or asks.
+- POST /me/import-local  accepts the localStorage object (edubridge:v1),
+  validates it, merges without overwriting newer server data, returns a
+  report of what was imported/skipped.
+- GET /me/export  returns everything as one JSON file (data portability).
+- DELETE /me  deletes the account and all data immediately (hard delete),
+  confirmed by re-auth or typed confirmation.
+- Authorisation on EVERY record: queries are always scoped by session user id.
+  A negative test suite must prove user A can never read/write/delete user
+  B's records for every resource (Part K).
+- Limits: per-user caps (e.g. 50 documents, 2 MB per document text) with
+  clear errors.
+Acceptance: data created on device 1 appears on device 2 after sign-in;
+user isolation test passes for all resources; delete removes everything.
+
+F3 — AI PROXY (replaces server/index.mjs)
+- POST /ai/chat (streaming via SSE), POST /ai/json (structured), POST
+  /ai/ocr (images, size-limited) — thin, task-typed endpoints. The backend
+  owns prompts' task selection, tier choice and the grounding step:
+  * Move prompts.ts, schemas.ts, context.ts into packages/shared (or
+    apps/api) so the SAME prompt and validator code runs server-side.
+  * The server builds grounded context from the DB catalogue (ground(),
+    max 20 records), applies minimalProfile(), calls Anthropic, validates the
+    reply with the Zod/validator, runs checkLinks and quoteIn, and returns
+    result + flags. A malformed reply returns 502 ai_bad_reply, never fake
+    data.
+- Auth required for AI (guests get rule-based fallback only).
+- Rate limits and quotas: per-user per-minute burst limit; daily and monthly
+  token/request quotas by role (configurable in DB/env); 429 with Retry-After
+  and a plain message key for aiErrorText().
+- Abuse protection: max request size, max prompt chars, timeout (e.g. 90 s),
+  abort support when the client disconnects, one in-flight request per user
+  per action.
+- Cost control: log every call in ai_usage; admin cost dashboard (F8); global
+  daily budget cap in env that disables AI with a clear message when reached.
+- Caching: identical grounded Q&A within a short TTL may be cached; never
+  cache user documents' analyses across users.
+- Privacy: do not log prompt bodies or document text (log sizes only).
+  Retention for ai_usage metadata: 12 months.
+- Keep GET /ai/health (is a key configured, is AI enabled, remaining quota
+  for the caller).
+Acceptance: frontend AI features all work through the proxy with no API key in
+the browser; quota exceeded returns 429 and the UI shows the plain message;
+tests prove that prompts carry the honesty rules and validators reject bad
+replies (port the existing advisor tests to run against the server code).
+
+F4 — CATALOGUE API (public)
+- GET /catalog/countries, /catalog/countries/:code
+- GET /catalog/universities?country=&tier=&level=&q=&subject=&language=&
+  funding=&confirmedDeadline=&confirmedFee=&ielts=  (same filter semantics as
+  FR-02; name/abbreviation search normalises Turkish letters; IELTS compare
+  uses confirmed minimums with ieltsScope=general only)
+- GET /catalog/universities/:id, /catalog/grants, /catalog/grants/:id,
+  /catalog/compare?ids=a,b,c&level=
+- ETag/Last-Modified + short cache so the web app can cache; a catalogue
+  `version` endpoint so the app knows when to refresh.
+- The web app switches from the bundled catalog.json to this API, but KEEPS a
+  bundled snapshot as an offline/failure fallback and for the single-file
+  claude.ai build. Fallback must be visibly labelled with its snapshot date.
+Acceptance: all catalogue pages render from the API; with the API down, the
+snapshot is used and labelled; data-rule tests (Part C) pass against API
+responses.
+
+F5 — DOCUMENT HANDLING
+- Files are still parsed in the browser (pdf.js / mammoth) as today. Bundle
+  pdf.js and mammoth with the app (self-hosted, hashed) instead of jsDelivr,
+  or add Subresource Integrity if kept on a CDN.
+- The server stores ONLY the extracted text the student confirms (advisor_docs).
+  No uploaded binary is stored. Scanned-page images go to /ai/ocr and are not
+  persisted.
+- 10 MB client limit stays; server text limit 2 MB per document.
+
+F6 — REMINDERS AND CALENDAR (replaces FR-20)
+- GET /me/calendar.ics  and a signed per-user feed URL (revocable token) with
+  plan tasks and CONFIRMED, open deadlines only (closed ones excluded). Use
+  all-day events for date-only deadlines; if a time is ever stored, use it
+  with an explicit TZID (Asia/Tashkent default). Must import cleanly into
+  Google Calendar and iOS Calendar.
+- Reminder engine in the worker: for each reminder due_at, send via Telegram
+  if the user opted in. Idempotent (no duplicates), retries with backoff,
+  respects quiet hours (default 22:00-08:00 Asia/Tashkent).
+- Telegram bot (grammY, webhook):
+  * /start links the Telegram chat to the account (one-time code from the
+    web app, expires in 10 min).
+  * Sends deadline and task reminders (e.g. 7 days, 1 day before).
+  * /stop stops all messages immediately; /status shows what is scheduled;
+    /language switches uz/ru/en.
+  * The bot NEVER asks for passwords, documents or payment details.
+Acceptance: link, reminder delivery, /stop, and re-opt-in are tested with a
+mocked Telegram API; .ics validates with an RFC 5545 validator.
+
+F7 — SHAREABLE SUMMARY (replaces FR-19)
+- One-page student summary: targets by group, profile gaps, plan steps, next
+  confirmed deadlines. Generated in the browser (print CSS + html-to-image/
+  PDF) so no personal data leaves the device; optional server endpoint
+  POST /me/summary/render only if client rendering proves unreliable for
+  Uzbek characters (decide in Phase 4 and tell me).
+- Export PDF (A4, one page) and PNG; Uzbek, Russian, English; student chooses
+  what to include (no personal data beyond their selection).
+- Optional public share link is OUT of scope unless I ask.
+
+F8 — ADMIN CMS AND DATA REVIEW (replaces FR-16)
+Server-enforced roles (never client-only). Admin web area at #admin (or
+/admin) with:
+- Catalogue editor: list/filter all universities, grants, scholarships;
+  edit any field with source URL + check date REQUIRED for every official
+  fact; the form refuses to save an official value without a source.
+- Draft -> In review -> Published workflow with side-by-side diff against the
+  published version; Admin approves/rejects with comment; publish bumps
+  version and the catalogue `version` endpoint.
+- "Hide" and "Reviewed" marks stored in the DB (this replaces browser-only
+  dataOverrides); an override made on one device shows on all.
+- Batch checker and export (JSON/CSV) as today, server-side.
+- Audit log viewer (who changed what, when, diff).
+- AI cost and usage dashboard (per day/user/task, quota status), user list
+  with role management and ability to suspend AI for a user.
+- Data gaps view: universities with links only, the 5 missing QS 2027
+  positions, records older than N days (freshness).
+Acceptance: a non-admin cannot reach any admin endpoint (403, tested for every
+route); an unsourced official fact cannot be saved or published; every
+change appears in audit_log.
+
+F9 — DATA FRESHNESS (replaces FR-22)
+Worker job `recheck` (monthly cron + manual trigger by Admin):
+- For every row in sources: polite fetch (User-Agent identifying EduBridge,
+  robots.txt respected, per-host rate limit, timeouts, retries), record HTTP
+  status, final URL, content hash of the relevant text, and a short text diff
+  snippet when changed.
+- Pages that block automation are marked blocks_automation and listed as
+  "needs manual check", never bypassed.
+- Output recheck_findings (changed/broken/blocked/moved) to an Admin review
+  queue. NOTHING is auto-published or auto-edited. Accepting a finding opens
+  a draft revision for the editor.
+- Records past the freshness threshold are flagged in the UI ("last checked
+  <date>") as today.
+Acceptance: report lists changed and broken URLs with old and new check
+dates; no catalogue value changes without an approved revision (tested).
+
+F10 — DATA GAPS (replaces FR-21)
+Using the CMS, fill requirements for the ~12 universities that currently have
+links only, from their official PDFs, and add the 5 missing QS 2027
+positions with a source page each. This is content work: you build the
+tooling and a checklist; I (or an editor) supply/confirm the facts. You must
+NOT fabricate any value. Where a fact cannot be confirmed, leave it empty.
+
+F11 — LANDING COUNTERS
+Landing page shows universities, grants, "every fact sourced and dated"
+computed from the catalogue API/snapshot, never hard-coded.
+
+F12 — PRESENTATION / DEMO MODE (FR-18)
+- ?present=1 or a setting hides the demo banner and dev notices.
+- Saved demo analyses: an Admin can save a real AI result (document analysis,
+  interview feedback, coach plan) into the DB as a "demo snapshot"; the app
+  loads it in < 1 s, shows "saved on <date>", and never presents it as live.
+  Stored server-side (no longer browser-only).
+- Three fictional demo profiles stay available to guests.
+
+F13 — MORE PROGRAMMES (P3)
+Data model supports programme-level records (10-15 popular programmes:
+finance, CS, engineering) under a university level, with programme-specific
+rules (including programme-scoped IELTS). Same data rules as Part C. UI and
+matching changes only after the model and admin editing are in place.
+
+
+=====================================================================
+PART G — FRONTEND CHANGES
+=====================================================================
+- Add an API client layer (src/lib/api.ts) with typed calls from
+  packages/shared; handle 401 (redirect to sign-in), 403, 409, 429, 5xx with
+  plain, translated messages.
+- AppStore keeps its shape. Add a persistence adapter: guest -> localStorage
+  (as today); signed in -> API with local cache and debounced writes, offline
+  queue, conflict handling (409 -> merge dialog). Old saved data must still
+  load (defaults in initial()).
+- Sign-in page (#signin) with Telegram and Google buttons; Settings gets
+  Account (linked providers, sessions, export, delete account), AI usage
+  (remaining quota), Telegram reminders (link/unlink, opt-in), calendar feed.
+- AI: src/lib/ai.ts gains a "server" provider that calls /ai/*; provider
+  order: server (if signed in and available) -> claude.ai runtime (flagged,
+  artifact build only) -> none. Errors map through aiErrorText with the new
+  codes (rate_limited, quota_exceeded, ai_disabled, ai_bad_reply).
+- Admin area guarded by server role, not by the old AdminGate alone (keep the
+  component as a UX hint only).
+- Performance: initial JS <= 2 MB gz-uncompressed target stays; load each
+  language's text on demand (fixes the current ~2.1 MB bundle); lazy-load
+  admin area and the 3D mascot. First paint < 2 s on mid-range phone on 4G.
+- Accessibility unchanged: 390 px no horizontal scroll, tap targets >= 40 px,
+  keyboard reachable, roles/labels, prefers-reduced-motion.
+- Keep a build target that still produces the single-file catalogue-snapshot
+  version for claude.ai (feature-flagged to use the old AI provider).
+
+
+=====================================================================
+PART H — SECURITY REQUIREMENTS
+=====================================================================
+H1. HTTPS everywhere (Caddy), HSTS, secure headers (CSP without unsafe-inline
+    where feasible, X-Content-Type-Options, Referrer-Policy, frame-ancestors
+    'none').
+H2. CORS: allow only the app origin. Cookies httpOnly/Secure/SameSite=Lax;
+    CSRF token or double-submit for state-changing requests.
+H3. Input validation with Zod on every route; reject unknown fields; size
+    limits; no raw SQL (Prisma only; if raw SQL is needed, parameterised).
+H4. Authorisation: central policy functions; every query scoped by user id;
+    role checks for admin routes; deny by default.
+H5. Rate limiting per IP and per user (auth endpoints stricter); lockout/
+    backoff on repeated auth failures.
+H6. Secrets in env only; rotate-able; startup fails fast if required secrets
+    are missing; never logged. Telegram bot token and Anthropic key only on
+    the server/worker.
+H7. Logs contain request ids, user ids and metadata, never document text,
+    prompts, tokens or cookies.
+H8. Dependencies: lockfile, `npm audit` in CI, Dependabot/Renovate config.
+H9. Backups: nightly pg_dump to off-server storage, 14-day retention,
+    documented restore procedure tested once; encrypted at rest.
+H10. Data protection: privacy page updated (what is stored, why, retention,
+     deletion). Account deletion hard-deletes within 24 h including backups'
+     natural rotation (document it). Honour export requests via /me/export.
+H11. SSRF protection for the recheck fetcher (block private IP ranges,
+     limit redirects, only http/https).
+H12. Admin actions require a re-authenticated recent session and are all
+     written to audit_log.
+
+
+=====================================================================
+PART I — NON-FUNCTIONAL REQUIREMENTS
+=====================================================================
+- Performance: API p95 < 300 ms for catalogue reads (cached), < 150 ms for
+  simple user-data reads on the target VPS; AI calls stream first token < 3 s
+  typical; AI calls show progress and can be aborted.
+- Availability: single VPS is acceptable; graceful degradation: if API or AI
+  is down, catalogue snapshot + rule-based tools still work.
+- Scalability target for v2: 5,000 registered users, 200 concurrent; no
+  premature microservices.
+- Data volume: DB size estimate documented in Phase 0.
+- Browser support: last 2 versions of Chrome, Safari (incl. iOS 15+), Firefox,
+  Edge; Telegram in-app browser must work.
+- Observability: /health (liveness), /ready (DB + migrations), structured
+  logs, error tracking hook, an alert-worthy list documented (AI budget cap
+  reached, recheck job failed, reminder queue stuck).
+- Maintainability: strict TypeScript, ESLint + Prettier, shared types, no
+  duplicated validators between web and api.
+
+
+=====================================================================
+PART J — LANGUAGES
+=====================================================================
+Uzbek (Latin, default), Russian, English. Frontend keeps tx(en, uz) and
+{en, uz} pairs with Russian looked up from src/i18n/ru.json (templates use
+{0}, {1}); never write l[lang] (use pick(l, lang) / say()). New server-sent
+user-facing text (errors, bot messages, .ics titles, summary export) is
+returned as message KEYS or in all three languages; the Telegram bot replies
+in the user's language. Catalogue records need {en, uz, ru}; the Python
+untranslated-string check (uz_missing.txt must be empty) is replaced by a DB
+validation that blocks publishing a record missing any required language.
+Official university names stay as published. "Master" shows as
+"Magistratura" / Magistratura (RU). AI replies in the interface language;
+quotes and rewrites stay in the document's language; interview questions stay
+in English.
+
+
+=====================================================================
+PART K — TESTING AND QUALITY GATES
+=====================================================================
+Existing: keep the 49 web tests green (logic, advisor, i18n).
+New, mandatory:
+K1. Auth: Telegram HMAC valid/forged/expired; OAuth state/PKCE; session
+    revoke; cookie flags.
+K2. Authorisation matrix: for EVERY /me resource and EVERY admin route, tests
+    as guest, user A, user B, editor, admin. User isolation must be proven.
+K3. Sync: conflict (409) paths, import-local merge, export completeness,
+    hard delete leaves zero rows for the user.
+K4. AI: honesty rules in prompts, validators reject malformed replies, quote
+    verification, link flagging, minimal profile has no name/birth year/
+    institution, quota and rate-limit behaviour, budget cap, abort handling.
+    AI tests use a mocked Anthropic client; add ONE optional live smoke test
+    run manually with a real key.
+K5. Catalogue: data-rule tests (Part C) run against the DB and API; unsourced
+    official fact cannot be published; publish workflow and versioning;
+    translations required before publish.
+K6. Reminders: idempotent sending, quiet hours, /stop, opt-in/out, linking
+    code expiry.
+K7. Recheck: robots.txt respected, SSRF blocked, blocked pages listed not
+    bypassed, no auto-publish.
+K8. .ics validity; summary export one A4 page with Uzbek characters.
+K9. E2E smoke (Playwright): guest browse -> sign in (mocked provider) ->
+    onboarding -> save university -> AI question (mock) -> sign in on a
+    second browser context and see the data -> delete account.
+K10. Manual pre-release: every route at 390 px and 1280 px (no horizontal
+     scroll, no console errors); on production, run each AI action once.
+CI (GitHub Actions or equivalent): install, lint, typecheck, unit/integration
+tests with a Postgres service, build web + api, Docker build; fail on any
+error.
+
+
+=====================================================================
+PART L — PHASED PLAN (STOP FOR APPROVAL AFTER EACH PHASE)
+=====================================================================
+
+PHASE 0 — AUDIT AND DESIGN (no feature code)
+- Read the repo; report the actual state vs. the docs (versions, test count,
+  bundle size, legacy data layer, anything inconsistent).
+- Decide monorepo layout, queue choice (pg-boss vs BullMQ), PDF rendering
+  approach. Produce: architecture note, ER diagram (Mermaid), OpenAPI
+  skeleton, threat model (one page), risk list, estimate per phase.
+- Ask me any blocking questions (with options).
+Deliverable: docs/ARCHITECTURE.md, docs/THREAT_MODEL.md, updated plan.
+
+PHASE 1 — FOUNDATION + CATALOGUE API
+- Monorepo/workspaces, shared package, Fastify app, Prisma schema + migrations,
+  Docker Compose (dev), CI, lint/format, health/ready, config validation,
+  logging, error format.
+- Import script; catalogue read API (F4); web switched to API with labelled
+  snapshot fallback; landing counters (F11); bundle language splitting.
+Exit: catalogue pages work from API and from snapshot; data-rule tests pass
+against DB; CI green.
+
+PHASE 2 — ACCOUNTS, SYNC, AI PROXY (the core of "not weak")
+- Auth (F1), user data API (F2), import-local and export/delete, sync
+  adapter in the web app, conflict handling.
+- AI proxy with quotas, rate limits, cost log, budget cap (F3); port prompts,
+  validators and advisor tests to server; web AI provider switched.
+- Self-hosted pdf.js/mammoth (F5).
+Exit: sign in on two devices and see the same data; all AI features work via
+the proxy; isolation tests (K2) pass; no secret in the browser bundle (add a
+test that greps the build output for key patterns).
+
+PHASE 3 — ADMIN CMS AND PRESENTATION
+- Roles, admin area, editor, revision/review/publish workflow, audit log,
+  server-side hide/reviewed marks, cost dashboard, data gaps view (F8).
+- Presentation mode and saved demo analyses (F12).
+Exit: unsourced official facts cannot be saved; non-admin gets 403 on all
+admin routes; demo snapshot opens < 1 s and is labelled.
+
+PHASE 4 — REMINDERS, CALENDAR, SHARING
+- .ics export and signed feed (F6), worker + reminder engine, Telegram bot
+  (opt-in, /stop), shareable summary PDF/PNG (F7).
+Exit: .ics imports into Google/iOS; bot flow tested; summary fits one A4.
+
+PHASE 5 — DATA FRESHNESS, GAPS, PRODUCTION
+- Recheck worker and review queue (F9); data-gap tooling and checklist (F10);
+  production Docker/Caddy, backups and tested restore, monitoring, security
+  headers, load test at target scale, final security review.
+- With my OK only: retire the legacy data layer (older universities.json /
+  scholarships.json, Opportunity pages and #university--/#scholarship--
+  routes) after redirecting old links to the new pages.
+Exit: monthly recheck produces a reviewed list; restore drill documented;
+production checklist green.
+
+PHASE 6 — PROGRAMME-LEVEL DATA (F13)
+- Model + admin editing first, UI/matching second. Same data rules.
+
+
+=====================================================================
+PART M — ACCEPTANCE CHECKLIST (RELEASE GATE)
+=====================================================================
+[ ] No API key, bot token or DB credential in the web bundle (automated check)
+[ ] All Part C rules covered by automated tests that run against DB + API
+[ ] User isolation proven for every private resource
+[ ] Admin routes return 403 for every non-admin role
+[ ] AI works only through the proxy; quotas, rate limits, budget cap work
+[ ] Data export and account deletion work and are tested
+[ ] Catalogue snapshot fallback works and is labelled
+[ ] Reminders opt-in, /stop works, no passwords ever requested
+[ ] Recheck never changes published data without approval
+[ ] 390 px / 1280 px manual pass, no console errors, three languages complete
+[ ] Backup + restore drill documented and done once
+[ ] README, API docs, docs/PROGRESS.md, privacy page updated
+
+
+=====================================================================
+PART N — OPEN QUESTIONS (ask me with ready options when you reach them)
+=====================================================================
+1. Hackathon date / demo length / judging criteria -> decides how much of
+   Phases 3-4 must be demo-ready first. (Phase 0: ask me.)
+2. Domain name and VPS provider/region (Uzbekistan latency vs. EU/US).
+3. Who owns monthly data approval (Admin) and who are the Editors?
+4. Email address collected from Google: store it or discard after sign-in?
+5. Telegram bot name/handle and who creates it with BotFather.
+6. AI monthly budget cap (USD) and default per-user daily quota.
+7. Queue choice if pg-boss is not enough.
+8. Whether the claude.ai artifact build must remain supported long-term.
+
+END OF DOCUMENT

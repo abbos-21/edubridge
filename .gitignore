@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-single
+.env
+.env.*
+!.env.example
+!.env.production.example
+*.log
+coverage
+.DS_Store
+uz_missing.txt
+e2e/shots
+test-results
+**/e2e/shots
+**/playwright-report

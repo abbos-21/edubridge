@@ -1,0 +1,1074 @@
+{
+ "kinds": {
+  "required": {
+   "en": "Required",
+   "uz": "Majburiy"
+  },
+  "depends": {
+   "en": "Depends on programme",
+   "uz": "Dasturga bog‘liq"
+  },
+  "optional": {
+   "en": "Optional",
+   "uz": "Ixtiyoriy"
+  }
+ },
+ "documents": {
+  "MY": {
+   "bachelor": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "School-leaving certificate (attestat) and grade transcript",
+      "uz": "Maktab attestati va baholar ilovasi (transkript)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate (IELTS/TOEFL, German, Turkish or TOPIK)",
+      "uz": "Til sertifikati (IELTS/TOEFL, nemis, turk yoki TOPIK)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Motivation letter / personal statement",
+      "uz": "Motivatsion xat / shaxsiy bayonot"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Passport-style photo",
+      "uz": "Pasport uchun rasm"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Proof of equivalence, foundation or pre-university study if 12 years of schooling are required",
+      "uz": "12 yillik ta’lim talab qilinsa, ekvivalentlik, foundation yoki pre-university ta’lim isboti"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letter",
+      "uz": "Tavsiyanoma"
+     },
+     "kind": "optional"
+    },
+    {
+     "label": {
+      "en": "Portfolio or certificates of achievements",
+      "uz": "Portfolio yoki yutuqlar sertifikatlari"
+     },
+     "kind": "optional"
+    }
+   ],
+   "master": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Bachelor’s diploma (or expected-graduation letter) and transcript",
+      "uz": "Bakalavr diplomi (yoki bitirish haqida ma’lumotnoma) va transkript"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate",
+      "uz": "Til sertifikati"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "CV",
+      "uz": "CV (rezyume)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Statement of purpose / motivation letter",
+      "uz": "Maqsad bayoni (SOP) / motivatsion xat"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letters",
+      "uz": "Tavsiyanomalar"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Research proposal (research-based programmes)",
+      "uz": "Tadqiqot rejasi (tadqiqotga asoslangan dasturlar)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Proof of work experience (when the GPA is below the standard minimum)",
+      "uz": "Ish tajribasi isboti (GPA standart minimumdan past bo‘lsa)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Portfolio or writing sample",
+      "uz": "Portfolio yoki yozma ish namunasi"
+     },
+     "kind": "optional"
+    }
+   ]
+  },
+  "HU": {
+   "bachelor": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "School-leaving certificate (attestat) and grade transcript",
+      "uz": "Maktab attestati va baholar ilovasi (transkript)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate (IELTS/TOEFL, German, Turkish or TOPIK)",
+      "uz": "Til sertifikati (IELTS/TOEFL, nemis, turk yoki TOPIK)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Motivation letter / personal statement",
+      "uz": "Motivatsion xat / shaxsiy bayonot"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Passport-style photo",
+      "uz": "Pasport uchun rasm"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Entrance exam or interview (online)",
+      "uz": "Kirish imtihoni yoki suhbat (onlayn)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letter",
+      "uz": "Tavsiyanoma"
+     },
+     "kind": "optional"
+    },
+    {
+     "label": {
+      "en": "Portfolio or certificates of achievements",
+      "uz": "Portfolio yoki yutuqlar sertifikatlari"
+     },
+     "kind": "optional"
+    }
+   ],
+   "master": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Bachelor’s diploma (or expected-graduation letter) and transcript",
+      "uz": "Bakalavr diplomi (yoki bitirish haqida ma’lumotnoma) va transkript"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate",
+      "uz": "Til sertifikati"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "CV",
+      "uz": "CV (rezyume)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Statement of purpose / motivation letter",
+      "uz": "Maqsad bayoni (SOP) / motivatsion xat"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letters",
+      "uz": "Tavsiyanomalar"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Research proposal (research-based programmes)",
+      "uz": "Tadqiqot rejasi (tadqiqotga asoslangan dasturlar)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Entrance exam or interview (online)",
+      "uz": "Kirish imtihoni yoki suhbat (onlayn)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Portfolio or writing sample",
+      "uz": "Portfolio yoki yozma ish namunasi"
+     },
+     "kind": "optional"
+    }
+   ]
+  },
+  "DE": {
+   "bachelor": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "School-leaving certificate (attestat) and grade transcript",
+      "uz": "Maktab attestati va baholar ilovasi (transkript)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate (IELTS/TOEFL, German, Turkish or TOPIK)",
+      "uz": "Til sertifikati (IELTS/TOEFL, nemis, turk yoki TOPIK)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Motivation letter / personal statement",
+      "uz": "Motivatsion xat / shaxsiy bayonot"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Passport-style photo",
+      "uz": "Pasport uchun rasm"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Proof of university entrance qualification (HZB) — via uni-assist/VPD where the university uses it",
+      "uz": "Universitetga kirish huquqi (HZB) isboti — universitet foydalansa uni-assist/VPD orqali"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Studienkolleg / Feststellungsprüfung result if direct entry is not possible",
+      "uz": "To‘g‘ridan-to‘g‘ri kirish bo‘lmasa, Studienkolleg / Feststellungsprüfung natijasi"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letter",
+      "uz": "Tavsiyanoma"
+     },
+     "kind": "optional"
+    },
+    {
+     "label": {
+      "en": "Portfolio or certificates of achievements",
+      "uz": "Portfolio yoki yutuqlar sertifikatlari"
+     },
+     "kind": "optional"
+    }
+   ],
+   "master": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Bachelor’s diploma (or expected-graduation letter) and transcript",
+      "uz": "Bakalavr diplomi (yoki bitirish haqida ma’lumotnoma) va transkript"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate",
+      "uz": "Til sertifikati"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "CV",
+      "uz": "CV (rezyume)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Statement of purpose / motivation letter",
+      "uz": "Maqsad bayoni (SOP) / motivatsion xat"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letters",
+      "uz": "Tavsiyanomalar"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Research proposal (research-based programmes)",
+      "uz": "Tadqiqot rejasi (tadqiqotga asoslangan dasturlar)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Course descriptions / module handbook to check credits (ECTS)",
+      "uz": "Kreditlarni (ECTS) tekshirish uchun fanlar tavsifi / modul qo‘llanmasi"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "VPD from uni-assist (where the university asks for it)",
+      "uz": "uni-assist’dan VPD (universitet so‘rasa)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Portfolio or writing sample",
+      "uz": "Portfolio yoki yozma ish namunasi"
+     },
+     "kind": "optional"
+    }
+   ]
+  },
+  "TR": {
+   "bachelor": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "School-leaving certificate (attestat) and grade transcript",
+      "uz": "Maktab attestati va baholar ilovasi (transkript)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate (IELTS/TOEFL, German, Turkish or TOPIK)",
+      "uz": "Til sertifikati (IELTS/TOEFL, nemis, turk yoki TOPIK)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Motivation letter / personal statement",
+      "uz": "Motivatsion xat / shaxsiy bayonot"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Passport-style photo",
+      "uz": "Pasport uchun rasm"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Accepted exam or diploma result (TR-YÖS, SAT, A-Level, IB or the university’s own exam)",
+      "uz": "Qabul qilinadigan imtihon yoki diplom natijasi (TR-YÖS, SAT, A-Level, IB yoki universitetning o‘z imtihoni)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Equivalence certificate (denklik)",
+      "uz": "Ekvivalentlik guvohnomasi (denklik)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letter",
+      "uz": "Tavsiyanoma"
+     },
+     "kind": "optional"
+    },
+    {
+     "label": {
+      "en": "Portfolio or certificates of achievements",
+      "uz": "Portfolio yoki yutuqlar sertifikatlari"
+     },
+     "kind": "optional"
+    }
+   ],
+   "master": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Bachelor’s diploma (or expected-graduation letter) and transcript",
+      "uz": "Bakalavr diplomi (yoki bitirish haqida ma’lumotnoma) va transkript"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate",
+      "uz": "Til sertifikati"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "CV",
+      "uz": "CV (rezyume)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Statement of purpose / motivation letter",
+      "uz": "Maqsad bayoni (SOP) / motivatsion xat"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letters",
+      "uz": "Tavsiyanomalar"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Research proposal (research-based programmes)",
+      "uz": "Tadqiqot rejasi (tadqiqotga asoslangan dasturlar)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "ALES, GRE or GMAT score",
+      "uz": "ALES, GRE yoki GMAT natijasi"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "YÖK recognition / equivalence of a foreign degree",
+      "uz": "Chet el diplomining YÖK tan olish / ekvivalentlik hujjati"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Portfolio or writing sample",
+      "uz": "Portfolio yoki yozma ish namunasi"
+     },
+     "kind": "optional"
+    }
+   ]
+  },
+  "KR": {
+   "bachelor": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "School-leaving certificate (attestat) and grade transcript",
+      "uz": "Maktab attestati va baholar ilovasi (transkript)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate (IELTS/TOEFL, German, Turkish or TOPIK)",
+      "uz": "Til sertifikati (IELTS/TOEFL, nemis, turk yoki TOPIK)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Motivation letter / personal statement",
+      "uz": "Motivatsion xat / shaxsiy bayonot"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Passport-style photo",
+      "uz": "Pasport uchun rasm"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Documents on the citizenship of you and your parents and the family relationship",
+      "uz": "Siz va ota-onangiz fuqaroligi hamda qarindoshlikni tasdiqlovchi hujjatlar"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Apostille or consular legalisation of school documents",
+      "uz": "Maktab hujjatlariga apostil yoki konsullik tasdig‘i"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Proof of funds (bank statement)",
+      "uz": "Moliyaviy imkoniyat isboti (bank ko‘chirmasi)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letter",
+      "uz": "Tavsiyanoma"
+     },
+     "kind": "optional"
+    },
+    {
+     "label": {
+      "en": "Portfolio or certificates of achievements",
+      "uz": "Portfolio yoki yutuqlar sertifikatlari"
+     },
+     "kind": "optional"
+    }
+   ],
+   "master": [
+    {
+     "label": {
+      "en": "Passport (valid for the whole application period)",
+      "uz": "Pasport (ariza davri davomida amal qiladigan)"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Bachelor’s diploma (or expected-graduation letter) and transcript",
+      "uz": "Bakalavr diplomi (yoki bitirish haqida ma’lumotnoma) va transkript"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Certified translations of documents not in English/the local language",
+      "uz": "Ingliz/mahalliy tilda bo‘lmagan hujjatlarning tasdiqlangan tarjimalari"
+     },
+     "kind": "required"
+    },
+    {
+     "label": {
+      "en": "Language certificate",
+      "uz": "Til sertifikati"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "CV",
+      "uz": "CV (rezyume)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Statement of purpose / motivation letter",
+      "uz": "Maqsad bayoni (SOP) / motivatsion xat"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Recommendation letters",
+      "uz": "Tavsiyanomalar"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Research proposal (research-based programmes)",
+      "uz": "Tadqiqot rejasi (tadqiqotga asoslangan dasturlar)"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Apostille or consular legalisation of diploma and transcript",
+      "uz": "Diplom va transkriptga apostil yoki konsullik tasdig‘i"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Documents on the citizenship of you and your parents",
+      "uz": "Siz va ota-onangiz fuqaroligi bo‘yicha hujjatlar"
+     },
+     "kind": "depends"
+    },
+    {
+     "label": {
+      "en": "Portfolio or writing sample",
+      "uz": "Portfolio yoki yozma ish namunasi"
+     },
+     "kind": "optional"
+    }
+   ]
+  }
+ },
+ "steps": {
+  "MY": {
+   "bachelor": [
+    {
+     "en": "Pick a specific bachelor’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq bakalavr dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Ask the university whether your 11-year certificate is accepted directly or whether you need a foundation/pre-university year.",
+     "uz": "Universitetdan 11 yillik attestatingiz to‘g‘ridan-to‘g‘ri qabul qilinadimi yoki foundation/pre-university yili kerakmi, so‘rang."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ],
+   "master": [
+    {
+     "en": "Pick a specific master’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq magistratura dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Check the academic and language requirements for applicants with documents from Uzbekistan.",
+     "uz": "O‘zbekiston hujjatlari bilan topshiruvchilar uchun akademik va til talablarini tekshiring."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter, CV and (if needed) research proposal; ask referees early.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing, CV va (kerak bo‘lsa) tadqiqot rejasini tayyorlang; tavsiya beruvchilardan oldindan so‘rang."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ]
+  },
+  "HU": {
+   "bachelor": [
+    {
+     "en": "Pick a specific bachelor’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq bakalavr dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Check the academic and language requirements for applicants with documents from Uzbekistan.",
+     "uz": "O‘zbekiston hujjatlari bilan topshiruvchilar uchun akademik va til talablarini tekshiring."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ],
+   "master": [
+    {
+     "en": "Pick a specific master’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq magistratura dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Check the academic and language requirements for applicants with documents from Uzbekistan.",
+     "uz": "O‘zbekiston hujjatlari bilan topshiruvchilar uchun akademik va til talablarini tekshiring."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter, CV and (if needed) research proposal; ask referees early.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing, CV va (kerak bo‘lsa) tadqiqot rejasini tayyorlang; tavsiya beruvchilardan oldindan so‘rang."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ]
+  },
+  "DE": {
+   "bachelor": [
+    {
+     "en": "Pick a specific bachelor’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq bakalavr dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Check whether your certificate gives direct entry (uni-assist/anabin) or whether you need the Studienkolleg first.",
+     "uz": "Attestatingiz to‘g‘ridan-to‘g‘ri kirish huquqini beradimi (uni-assist/anabin) yoki avval Studienkolleg kerakmi, tekshiring."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ],
+   "master": [
+    {
+     "en": "Pick a specific master’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq magistratura dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Compare your bachelor’s credits (ECTS) and modules with the programme’s requirements; find out whether a VPD from uni-assist is needed.",
+     "uz": "Bakalavr kreditlaringiz (ECTS) va fanlaringizni dastur talabi bilan solishtiring; uni-assist’dan VPD kerakmi, aniqlang."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter, CV and (if needed) research proposal; ask referees early.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing, CV va (kerak bo‘lsa) tadqiqot rejasini tayyorlang; tavsiya beruvchilardan oldindan so‘rang."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ]
+  },
+  "TR": {
+   "bachelor": [
+    {
+     "en": "Pick a specific bachelor’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq bakalavr dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Find out which exam or diploma result the university accepts (TR-YÖS, SAT, own exam…) and register for it in time.",
+     "uz": "Universitet qaysi imtihon yoki diplom natijasini qabul qilishini (TR-YÖS, SAT, o‘z imtihoni…) aniqlang va o‘z vaqtida ro‘yxatdan o‘ting."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ],
+   "master": [
+    {
+     "en": "Pick a specific master’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq magistratura dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Check the academic and language requirements for applicants with documents from Uzbekistan.",
+     "uz": "O‘zbekiston hujjatlari bilan topshiruvchilar uchun akademik va til talablarini tekshiring."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter, CV and (if needed) research proposal; ask referees early.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing, CV va (kerak bo‘lsa) tadqiqot rejasini tayyorlang; tavsiya beruvchilardan oldindan so‘rang."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ]
+  },
+  "KR": {
+   "bachelor": [
+    {
+     "en": "Pick a specific bachelor’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq bakalavr dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Download the latest admission guide for your track and check the citizenship rule, documents and apostille requirements.",
+     "uz": "O‘z yo‘lingiz uchun eng so‘nggi qabul qo‘llanmasini yuklab oling va fuqarolik qoidasi, hujjatlar va apostil talabini tekshiring."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ],
+   "master": [
+    {
+     "en": "Pick a specific master’s programme on the official site and read its own entry page (requirements differ between faculties).",
+     "uz": "Rasmiy saytda aniq magistratura dasturini tanlang va uning o‘z qabul sahifasini o‘qing (fakultetlar talabi farq qiladi)."
+    },
+    {
+     "en": "Download the latest admission guide for your track and check the citizenship rule, documents and apostille requirements.",
+     "uz": "O‘z yo‘lingiz uchun eng so‘nggi qabul qo‘llanmasini yuklab oling va fuqarolik qoidasi, hujjatlar va apostil talabini tekshiring."
+    },
+    {
+     "en": "Take the language test or exam the programme accepts (check which tests are accepted, not just the score).",
+     "uz": "Dastur qabul qiladigan til testi yoki imtihonini topshiring (faqat ballni emas, qaysi test qabul qilinishini ham tekshiring)."
+    },
+    {
+     "en": "Prepare the documents and certified translations; write the motivation letter, CV and (if needed) research proposal; ask referees early.",
+     "uz": "Hujjatlar va tasdiqlangan tarjimalarni tayyorlang; motivatsion xat yozing, CV va (kerak bo‘lsa) tadqiqot rejasini tayyorlang; tavsiya beruvchilardan oldindan so‘rang."
+    },
+    {
+     "en": "Submit the application and pay the fee on the official portal before the deadline (note the time zone).",
+     "uz": "Arizani rasmiy portalda muddatdan oldin topshiring va to‘lovni amalga oshiring (vaqt zonasiga e’tibor bering)."
+    },
+    {
+     "en": "Apply for grants separately — they have their own deadlines and conditions.",
+     "uz": "Grantlarga alohida topshiring — ularning o‘z muddati va shartlari bor."
+    },
+    {
+     "en": "After the result: read the offer conditions, then arrange funding, visa and housing through official sources.",
+     "uz": "Natijadan keyin: taklif (offer) shartlarini o‘qing, so‘ng moliyalashtirish, viza va turar joyni rasmiy manbalar orqali hal qiling."
+    }
+   ]
+  }
+ }
+}

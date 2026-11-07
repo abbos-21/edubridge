@@ -1,0 +1,52 @@
+{
+ "MY": {
+  "name": {
+   "en": "Malaysia",
+   "uz": "Malayziya"
+  },
+  "tagline": {
+   "en": "English-taught degrees, public and private universities",
+   "uz": "Ingliz tilidagi dasturlar, davlat va xususiy universitetlar"
+  }
+ },
+ "HU": {
+  "name": {
+   "en": "Hungary",
+   "uz": "Vengriya"
+  },
+  "tagline": {
+   "en": "English-taught programmes and Stipendium Hungaricum",
+   "uz": "Ingliz tilidagi dasturlar va Stipendium Hungaricum"
+  }
+ },
+ "DE": {
+  "name": {
+   "en": "Germany",
+   "uz": "Germaniya"
+  },
+  "tagline": {
+   "en": "Low or no tuition at many public universities — but not everywhere",
+   "uz": "Ko‘p davlat universitetlarida kontrakt past yoki yo‘q — lekin hamma joyda emas"
+  }
+ },
+ "TR": {
+  "name": {
+   "en": "Türkiye",
+   "uz": "Turkiya"
+  },
+  "tagline": {
+   "en": "Türkiye Bursları and English- or Turkish-taught programmes",
+   "uz": "Türkiye Bursları va ingliz yoki turk tilidagi dasturlar"
+  }
+ },
+ "KR": {
+  "name": {
+   "en": "South Korea",
+   "uz": "Janubiy Koreya"
+  },
+  "tagline": {
+   "en": "GKS scholarships, Korean- and English-taught tracks",
+   "uz": "GKS grantlari, koreys va ingliz tilidagi yo‘llar"
+  }
+ }
+}

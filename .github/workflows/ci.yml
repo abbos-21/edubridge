@@ -1,0 +1,58 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: edubridge, POSTGRES_PASSWORD: edubridge, POSTGRES_DB: edubridge_test }
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U edubridge" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL_TEST: postgresql://edubridge:edubridge@localhost:5433/edubridge_test?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm audit --omit=dev --audit-level=high
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: edubridge, POSTGRES_PASSWORD: edubridge, POSTGRES_DB: edubridge }
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U edubridge" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://edubridge:edubridge@localhost:5433/edubridge?schema=public
+      APP_ORIGIN: http://localhost:5173
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: cp .env.example .env
+      - run: npm run db:migrate
+      - run: npm run db:import
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: npx playwright test
+        working-directory: apps/web
+  infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Production compose file is valid
+        run: |
+          printf 'SITE_ADDRESS=example.org\nPOSTGRES_PASSWORD=x\nBACKUP_PASSPHRASE=x\nSESSION_SECRET=x\n' > .env.production
+          docker compose -f docker-compose.prod.yml --env-file .env.production config -q
+      - name: Caddyfile is valid
+        run: docker run --rm -e SITE_ADDRESS=:80 -v "$PWD/infra/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
+      - name: Images build
+        run: docker compose -f docker-compose.prod.yml --env-file .env.production build

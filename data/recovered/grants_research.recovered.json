@@ -1,0 +1,256 @@
+[
+ {
+  "name": "Malaysian Technical Cooperation Programme (MTCP) Scholarship",
+  "country": "MY",
+  "levels": [
+   "master"
+  ],
+  "who": {
+   "en": "Citizens of MTCP recipient countries (check the official list). Master’s study only.",
+   "uz": "MTCP oluvchi davlatlar fuqarolari (rasmiy ro‘yxatni tekshiring). Faqat magistratura."
+  },
+  "criteria": {
+   "en": "CGPA, English, age and country criteria are in the official 2026 guideline, which could not be read here — check it before applying.",
+   "uz": "CGPA, ingliz tili, yosh va davlat mezonlari rasmiy 2026 yo‘riqnomasida; uni bu yerda o‘qib bo‘lmadi — ariza berishdan oldin tekshiring."
+  },
+  "covers": {
+   "tuition": "check",
+   "stipend": "check",
+   "accommodation": "check",
+   "travel": "check",
+   "insurance": "check"
+  },
+  "notCovered": {
+   "en": "Visa costs and application fees are paid by the applicant.",
+   "uz": "Viza xarajatlari va ariza to‘lovlarini abituriyent o‘zi to‘laydi."
+  },
+  "deadline": {
+   "en": "2026 cycle: applicants not called for interview by 6 July 2026 are unsuccessful (cycle closed). Next cycle not announced at time of check.",
+   "uz": "2026 davri: 6-iyul 2026 gacha suhbatga chaqirilmaganlar muvaffaqiyatsiz hisoblanadi (davr yopilgan). Tekshiruv paytida keyingi davr e’lon qilinmagan."
+  },
+  "universities": {
+   "en": "Only universities on the MTCP supported list.",
+   "uz": "Faqat MTCP qo‘llab-quvvatlaydigan universitetlar ro‘yxatidagilar."
+  },
+  "url": "https://mtcp.kln.gov.my/scholarship",
+  "sources": [
+   "https://mtcp.kln.gov.my/storage/scholarship/admin/1777284272_FREQUENTLY%20ASKED%20QUESTIONS%20(FAQ)%20MTCP%20SCHOLARSHIP%202026.pdf"
+  ],
+  "checked": "2026-10-30",
+  "id": "mtcp"
+ },
+ {
+  "name": "Malaysia International Scholarship (MIS)",
+  "country": "MY",
+  "levels": [
+   "master",
+   "phd"
+  ],
+  "who": {
+   "en": "Citizens of listed countries — Uzbekistan is on the 2026 recipient list. Full-time study only.",
+   "uz": "Ro‘yxatdagi davlatlar fuqarolari — O‘zbekiston 2026 ro‘yxatida bor. Faqat kunduzgi ta’lim."
+  },
+  "criteria": {
+   "en": "Master’s: bachelor’s CGPA 3.00 / Second Class Upper or higher; age not more than 40 at application (PhD: 45); IELTS 6.0 or TOEFL PBT 550, or an English-taught previous degree. Priority fields include Education, Engineering and ICT (medicine, nursing, pharmacy excluded).",
+   "uz": "Magistratura: bakalavr CGPA 3.00 / Second Class Upper yoki yuqori; ariza paytida yosh 40 dan oshmasligi (PhD: 45); IELTS 6.0 yoki TOEFL PBT 550, yoki ingliz tilidagi oldingi diplom. Ustuvor yo‘nalishlar: Ta’lim, Muhandislik, AKT (tibbiyot, hamshiralik, farmatsevtika kirmaydi)."
+  },
+  "covers": {
+   "tuition": "yes",
+   "stipend": "yes",
+   "accommodation": "no",
+   "travel": "check",
+   "insurance": "check"
+  },
+  "stipendText": {
+   "en": "RM 1,500 per month living allowance (paid every four months after progress reports)",
+   "uz": "Oyiga RM 1 500 yashash nafaqasi (har to‘rt oyda, o‘zlashtirish hisobotidan keyin to‘lanadi)"
+  },
+  "universities": {
+   "en": "24 participating universities: 20 public plus UTP, UNITEN, MMU and INCEIF.",
+   "uz": "24 ta ishtirokchi universitet: 20 ta davlat universiteti hamda UTP, UNITEN, MMU va INCEIF."
+  },
+  "deadline": {
+   "en": "No application dates in the 2026 guideline — check the MOHE portal.",
+   "uz": "2026 yo‘riqnomasida ariza sanalari yo‘q — MOHE portalini tekshiring."
+  },
+  "url": "https://biasiswa.mohe.gov.my/INTER/index.php",
+  "sources": [
+   "https://biasiswa.mohe.gov.my/INTER/doc/MIS/Guidelines%20MIS%202026.pdf"
+  ],
+  "checked": "2026-10-30",
+  "id": "mis"
+ },
+ {
+  "name": "Türkiye Scholarships (Türkiye Bursları)",
+  "country": "TR",
+  "levels": [
+   "bachelor",
+   "master",
+   "phd"
+  ],
+  "criteria": {
+   "en": "Academic minimum: 70% for bachelor’s, 75% for graduate study, 90% for Medicine, Dentistry and Pharmacy. Age: under 21 for bachelor’s, under 30 for master’s, under 35 for PhD. These are grant criteria, not university entry minimums.",
+   "uz": "Akademik minimum: bakalavr uchun 70%, magistratura/doktorantura uchun 75%, Tibbiyot, Stomatologiya va Farmatsevtika uchun 90%. Yosh: bakalavr uchun 21 dan kichik, magistratura uchun 30 dan kichik, PhD uchun 35 dan kichik. Bular grant mezonlari, universitetga kirish minimumlari emas."
+  },
+  "covers": {
+   "tuition": "yes",
+   "stipend": "yes",
+   "accommodation": "yes",
+   "travel": "yes",
+   "insurance": "yes"
+  },
+  "stipendText": {
+   "en": "Monthly stipend: TL 6,500 (bachelor’s), TL 9,500 (master’s), TL 13,000 (PhD) — year of these amounts not stated",
+   "uz": "Oylik stipendiya: 6 500 TL (bakalavr), 9 500 TL (magistratura), 13 000 TL (PhD) — summalar yili ko‘rsatilmagan"
+  },
+  "extras": {
+   "en": "University and department placement by the programme; one-year Turkish language course; flight ticket at the start and end of studies.",
+   "uz": "Universitet va yo‘nalishga joylashtirishni dastur amalga oshiradi; bir yillik turk tili kursi; o‘qish boshida va oxirida aviachipta."
+  },
+  "url": "https://www.turkiyeburslari.gov.tr",
+  "sources": [
+   "https://www.turkiyeburslari.gov.tr/scholarshipsprograms",
+   "https://www.turkiyeburslari.gov.tr/fulltimeprograms"
+  ],
+  "checked": "2026-10-30",
+  "id": "turkiye-burslari"
+ },
+ {
+  "name": "Stipendium Hungaricum",
+  "country": "HU",
+  "levels": [
+   "bachelor",
+   "master",
+   "phd"
+  ],
+  "who": {
+   "en": "Uzbekistan is a partner country: bachelor’s in any available field except Legal Science, Sport Science, Arts and Arts Education; master’s also offered (field restrictions not readable). Applications go through the national sending partner’s nomination.",
+   "uz": "O‘zbekiston hamkor davlat: bakalavr — Huquq, Sport, San’at va San’at ta’limidan tashqari barcha mavjud yo‘nalishlar; magistratura ham bor (yo‘nalish cheklovlarini o‘qib bo‘lmadi). Arizalar milliy yuboruvchi hamkorning nominatsiyasi orqali o‘tadi."
+  },
+  "covers": {
+   "tuition": "yes",
+   "stipend": "partial",
+   "accommodation": "partial",
+   "travel": "no",
+   "insurance": "yes"
+  },
+  "stipendText": {
+   "en": "2024/25 figures: HUF 43,700 per month (≈EUR 110) for bachelor’s/master’s; free dormitory place or HUF 40,000 per month towards accommodation; supplementary medical insurance up to HUF 65,000 per year. The programme states these do not fully cover living costs.",
+   "uz": "2024/25 ko‘rsatkichlari: bakalavr/magistratura uchun oyiga 43 700 HUF (≈110 EUR); bepul yotoqxona joyi yoki turar joy uchun oyiga 40 000 HUF; yiliga 65 000 HUF gacha qo‘shimcha tibbiy sug‘urta. Dastur bular yashash xarajatlarini to‘liq qoplamasligini aytadi."
+  },
+  "deadline": {
+   "en": "2026/27 call closed 15 January 2026, 14:00 CET. 2027/28 call not yet checked.",
+   "uz": "2026/27 tanlovi 15-yanvar 2026, 14:00 CET da yopilgan. 2027/28 tanlovi hali tekshirilmagan."
+  },
+  "url": "https://stipendiumhungaricum.hu/apply/",
+  "sources": [
+   "https://stipendiumhungaricum.hu/country/uzbekistan/",
+   "https://stipendiumhungaricum.hu/news/provisions-covered-by-the-stipendium-hungaricum-scholarship-for-the-2024-2025-academic-year/",
+   "https://stipendiumhungaricum.hu/news/application-is-on-for-the-2026-2027-stipendium-hungaricum-scholarship/"
+  ],
+  "checked": "2026-10-30",
+  "id": "stipendium-hungaricum"
+ },
+ {
+  "name": "DAAD — Development-Related Postgraduate Courses (EPOS)",
+  "country": "DE",
+  "levels": [
+   "master",
+   "phd"
+  ],
+  "criteria": {
+   "en": "Applies only to the participating EPOS courses. Bachelor’s (normally 4 years) with results in the upper third, normally no more than six years old; at least two years of related professional experience after the first degree; IELTS or TOEFL for English-taught courses (institutional TOEFL not accepted); DSH 2 / TestDaF 4 for German-taught courses. Not more than 15 months’ residence in Germany. This work-experience rule is specific to EPOS, not to all DAAD scholarships.",
+   "uz": "Faqat ishtirokchi EPOS kurslariga tegishli. Bakalavr (odatda 4 yillik), natijalar yuqori uchdan birida, odatda olti yildan eski emas; birinchi diplomdan keyin kamida ikki yillik tegishli ish tajribasi; ingliz tilidagi kurslar uchun IELTS yoki TOEFL (institutsional TOEFL qabul qilinmaydi); nemis tilidagi kurslar uchun DSH 2 / TestDaF 4. Germaniyada 15 oydan ortiq yashamagan bo‘lish. Bu ish tajribasi qoidasi faqat EPOS’ga xos, barcha DAAD stipendiyalariga emas."
+  },
+  "covers": {
+   "tuition": "check",
+   "stipend": "yes",
+   "accommodation": "partial",
+   "travel": "yes",
+   "insurance": "yes"
+  },
+  "stipendText": {
+   "en": "EUR 992 per month for master’s-level graduates; health, accident and liability insurance; travel allowance; possible rent subsidy and family allowance.",
+   "uz": "Magistratura darajasidagi bitiruvchilar uchun oyiga 992 EUR; tibbiy, baxtsiz hodisa va javobgarlik sug‘urtasi; yo‘l nafaqasi; ijara subsidiyasi va oila nafaqasi bo‘lishi mumkin."
+  },
+  "deadline": {
+   "en": "Deadlines depend on the course (list for 2027/28 published by DAAD). Apply directly to the course, up to three in priority order.",
+   "uz": "Muddatlar kursga bog‘liq (2027/28 ro‘yxati DAAD tomonidan e’lon qilingan). To‘g‘ridan-to‘g‘ri kursga, ustuvorlik tartibida uchtagacha ariza bering."
+  },
+  "url": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50076777",
+  "sources": [
+   "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50076777"
+  ],
+  "checked": "2026-10-30",
+  "id": "daad-epos"
+ },
+ {
+  "name": "Global Korea Scholarship — Undergraduate (GKS-U)",
+  "country": "KR",
+  "levels": [
+   "bachelor"
+  ],
+  "criteria": {
+   "en": "Under 25 in the applicable year; cumulative score 80%+ or top 20% of class or the required CGPA; applicant and both parents non-Korean citizens. These are grant criteria, not university entry minimums.",
+   "uz": "Tegishli yilda 25 yoshdan kichik; umumiy ball 80%+ yoki sinfda eng yaxshi 20% yoki talab qilingan CGPA; abituriyent va ikkala ota-onasi Koreya fuqarosi emas. Bular grant mezonlari, universitetga kirish minimumlari emas."
+  },
+  "tracks": {
+   "en": "Embassy Track (through Korean embassies, due in September) or University Track (directly at a GKS university, September–November).",
+   "uz": "Elchixona treki (Koreya elchixonalari orqali, sentabrda) yoki Universitet treki (to‘g‘ridan-to‘g‘ri GKS universitetida, sentabr–noyabr)."
+  },
+  "covers": {
+   "tuition": "yes",
+   "stipend": "yes",
+   "accommodation": "check",
+   "travel": "yes",
+   "insurance": "check"
+  },
+  "stipendText": {
+   "en": "Airfare, Korean language training, tuition and a monthly allowance (amounts in the GKS guide).",
+   "uz": "Aviachipta, koreys tili kursi, kontrakt va oylik nafaqa (summalar GKS qo‘llanmasida)."
+  },
+  "extras": {
+   "en": "One year of Korean language training, then 4–6 years of bachelor’s study. University scholarships or lab funding are not GKS.",
+   "uz": "Bir yil koreys tili kursi, keyin 4–6 yillik bakalavr. Universitet stipendiyalari yoki laboratoriya moliyalashi GKS emas."
+  },
+  "url": "https://www.studyinkorea.go.kr/ko/plan/scholarship.do",
+  "sources": [
+   "https://www.studyinkorea.go.kr/ko/plan/scholarship.do"
+  ],
+  "checked": "2026-10-30",
+  "id": "gks-u"
+ },
+ {
+  "name": "Global Korea Scholarship — Graduate (GKS-G)",
+  "country": "KR",
+  "levels": [
+   "master",
+   "phd"
+  ],
+  "criteria": {
+   "en": "Under 40; bachelor’s or master’s graduate; GPA at least 80% in the most recent programme; applicant and both parents non-Korean citizens.",
+   "uz": "40 yoshdan kichik; bakalavr yoki magistr bitiruvchisi; oxirgi dasturdagi GPA kamida 80%; abituriyent va ikkala ota-onasi Koreya fuqarosi emas."
+  },
+  "tracks": {
+   "en": "Embassy Track or University Track (General, Research, International Organization, R&D, Global Network — the last is master’s-only with no language year). Announcement in February, applications February–March, results in June.",
+   "uz": "Elchixona treki yoki Universitet treki (General, Research, International Organization, R&D, Global Network — oxirgisi faqat magistratura, til yilisiz). E’lon fevralda, arizalar fevral–mart, natijalar iyunda."
+  },
+  "covers": {
+   "tuition": "yes",
+   "stipend": "yes",
+   "accommodation": "check",
+   "travel": "yes",
+   "insurance": "check"
+  },
+  "stipendText": {
+   "en": "Airfare, Korean language training, tuition and a monthly allowance (amounts in the GKS guide).",
+   "uz": "Aviachipta, koreys tili kursi, kontrakt va oylik nafaqa (summalar GKS qo‘llanmasida)."
+  },
+  "url": "https://www.studyinkorea.go.kr/ko/plan/scholarship.do",
+  "sources": [
+   "https://www.studyinkorea.go.kr/ko/plan/scholarship.do"
+  ],
+  "checked": "2026-10-30",
+  "id": "gks-g"
+ }
+]

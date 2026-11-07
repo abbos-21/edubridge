@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: edubridge
+      POSTGRES_PASSWORD: edubridge
+      POSTGRES_DB: edubridge
+    ports: ["5433:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edubridge"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  pgdata:

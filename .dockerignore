@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+.env
+.env.*
+!.env.example
+!.env.production.example
+.git
+**/dist
+**/dist-single
+**/playwright-report
+**/test-results
+apps/web/e2e/shots
+docs
+data/recovered/EduBridge.bundle.html
+data/recovered/*.mjs

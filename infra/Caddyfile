@@ -1,0 +1,46 @@
+# EduBridge reverse proxy. HTTPS is automatic for a real domain (SITE_ADDRESS=example.org).
+# For a local smoke test use SITE_ADDRESS=:80 (plain http, no certificates).
+{$SITE_ADDRESS:localhost} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		-Server
+	}
+
+	# Metrics are for the internal scraper only (api:8787), never the public internet.
+	@metrics path /api/v1/metrics /api/v1/metrics/*
+	handle @metrics {
+		respond 404
+	}
+
+	handle /api/* {
+		request_body {
+			max_size 13MB
+		}
+		# flush_interval -1: the AI advisor streams its answer word by word
+		reverse_proxy api:8787 {
+			flush_interval -1
+			transport http {
+				response_header_timeout 120s
+			}
+		}
+	}
+
+	handle {
+		root * /srv
+		# CSP: scripts only from this site (and Telegram's login widget). Styles need 'unsafe-inline'
+		# because React sets style attributes and the summary page carries print CSS; scripts do not.
+		header Content-Security-Policy "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.telegram.org; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; frame-src https://oauth.telegram.org; form-action 'self' https://oauth.telegram.org https://accounts.google.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none'"
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@entry not path /assets/*
+		header @entry Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
