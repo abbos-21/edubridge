@@ -125,3 +125,25 @@ test('unauthenticated API calls are refused and forged cross-origin writes are b
   expect(noToken.status()).toBe(403);
   await ctx.close();
 });
+
+test('the Telegram button lives in its own frame and hands the signed result to the app (which sends it to the server)', async ({ browser }) => {
+  const { ctx, page } = await newPage(browser);
+  await page.route('**/api/v1/auth/providers', (r) => r.fulfill({ json: { telegram: { botUsername: 'edubridge_test_bot' }, google: false, dev: false } }));
+  await page.route('**/api/v1/auth/telegram', (r) => r.fulfill({ status: 401, json: { error: { code: 'telegram_bad_hash', message: 'no' } } }));
+  await page.goto('/#signin');
+  const frame = page.frameLocator('iframe[title="Sign in with Telegram"]');
+  await expect(page.locator('iframe[title="Sign in with Telegram"]')).toBeVisible();
+  const frameHandle = await (await page.locator('iframe[title="Sign in with Telegram"]').elementHandle())!.contentFrame();
+  await frameHandle!.waitForFunction(() => typeof (window as any).onTelegramAuth === 'function');
+  const sent = page.waitForRequest((r) => r.url().endsWith('/api/v1/auth/telegram') && r.method() === 'POST');
+  await frameHandle!.evaluate(() => (window as any).onTelegramAuth({ id: 42, auth_date: 1, hash: 'a'.repeat(64) }));
+  expect((await sent).postDataJSON()).toMatchObject({ id: 42 });
+  // a message from anywhere else is ignored
+  let extra = 0;
+  page.on('request', (r) => { if (r.url().endsWith('/api/v1/auth/telegram')) extra++; });
+  await page.evaluate(() => window.postMessage({ type: 'edubridge:telegram-auth', user: { id: 7 } }, '*'));
+  await page.waitForTimeout(300);
+  expect(extra).toBe(0);
+  void frame;
+  await ctx.close();
+});

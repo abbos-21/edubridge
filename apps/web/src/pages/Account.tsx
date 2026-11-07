@@ -11,29 +11,23 @@ import { href, navigate } from '../lib/router';
 import { LangSwitch, ThemeToggle } from '../components/common';
 import { Badge, Button, Card, Field, Input, Notice, Section } from '../components/ui';
 
-declare global {
-  interface Window {
-    onTelegramAuth?: (user: Record<string, unknown>) => void;
-  }
-}
-
+/**
+ * Telegram's login button. Its script needs eval(), which the site's security policy forbids, so it runs in a tiny
+ * separate page (public/telegram-login.html) and hands the signed result back with postMessage. The server verifies it.
+ */
 function TelegramWidget({ bot, onAuth }: { bot: string; onAuth: (u: Record<string, unknown>) => void }) {
-  const host = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLIFrameElement>(null);
+  const { tx } = useI18n();
   useEffect(() => {
-    window.onTelegramAuth = onAuth;
-    const s = document.createElement('script');
-    s.src = 'https://telegram.org/js/telegram-widget.js?22';
-    s.async = true;
-    s.dataset.telegramLogin = bot;
-    s.dataset.size = 'large';
-    s.dataset.onauth = 'onTelegramAuth(user)';
-    host.current?.appendChild(s);
-    return () => {
-      delete window.onTelegramAuth;
-      if (host.current) host.current.innerHTML = '';
+    const on = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin || e.source !== frame.current?.contentWindow) return;
+      const d = e.data as { type?: string; user?: Record<string, unknown> } | null;
+      if (d?.type === 'edubridge:telegram-auth' && d.user && typeof d.user === 'object') onAuth(d.user);
     };
-  }, [bot, onAuth]);
-  return <div ref={host} className="min-h-[44px]" />;
+    window.addEventListener('message', on);
+    return () => window.removeEventListener('message', on);
+  }, [onAuth]);
+  return <iframe ref={frame} title={tx('Sign in with Telegram', 'Telegram orqali kirish')} src={`/telegram-login.html?bot=${encodeURIComponent(bot)}`} className="h-[56px] w-full border-0" />;
 }
 
 export function SignIn() {

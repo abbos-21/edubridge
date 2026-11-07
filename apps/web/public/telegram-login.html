@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Telegram sign-in</title>
+<style>html,body{margin:0;background:transparent;overflow:hidden}#w{min-height:44px}</style>
+</head>
+<body>
+<!--
+  Telegram's login widget needs eval(), which the main site's security policy forbids. So the widget lives only on this
+  tiny page, which has its own policy (see infra/nginx/web.conf), and hands the signed result to the app with postMessage.
+  The server still verifies the signature; nothing here is trusted.
+-->
+<div id="w"></div>
+<script src="/telegram-login.js"></script>
+</body>
+</html>
