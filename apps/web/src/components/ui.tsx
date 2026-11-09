@@ -61,18 +61,6 @@ export function PageHeader({ eyebrow, title, children, actions }: { eyebrow?: Re
   );
 }
 
-/** The EduBridge mark: a navy tile with a teal arch (a bridge). */
-export function Logo({ size = 30 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="rgb(var(--navy))" />
-      <path d="M6 21c3.2-6.4 6.6-9.6 10-9.6S22.8 14.6 26 21" fill="none" stroke="rgb(var(--teal))" strokeWidth="2.6" strokeLinecap="round" />
-      <path d="M9.5 21v-3.2M16 21v-6.4M22.5 21v-3.2" stroke="rgb(var(--navy-ink))" strokeWidth="2" strokeLinecap="round" />
-      <path d="M5 22.5h22" stroke="rgb(var(--navy-ink))" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export function Notice({ tone = 'info', title, children }: { tone?: 'info' | 'warn'; title?: string; children: ReactNode }) {
   const Icon = tone === 'warn' ? AlertTriangle : Info;
   return (

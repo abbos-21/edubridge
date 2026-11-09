@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from 'react';
-import { Menu, X } from 'lucide-react';
+import { GraduationCap, Menu, X } from 'lucide-react';
 import { useI18n } from '../i18n/I18nProvider';
 import { useAuth } from '../auth/AuthProvider';
 import { href, useRoute } from '../lib/router';
 import { CompareTray, LangSwitch, ThemeToggle } from './common';
-import { Logo, buttonClass, cx } from './ui';
+import { buttonClass, cx } from './ui';
 
 type NavKey = 'nav.countries' | 'nav.universities' | 'nav.scholarships' | 'nav.compare' | 'nav.assistant' | 'nav.adviser';
 const NAV: Array<{ page: string; key: NavKey; match: string[]; mobileOnly?: boolean }> = [
@@ -16,11 +16,12 @@ const NAV: Array<{ page: string; key: NavKey; match: string[]; mobileOnly?: bool
   { page: 'unicompare', key: 'nav.compare', match: ['unicompare'], mobileOnly: true },
 ];
 
+/** The original EduBridge logo: a graduation cap and the name. */
 function BrandLink() {
   return (
-    <a href={href('home')} aria-label="EduBridge" className="flex items-center gap-2 rounded-md text-fg no-underline">
-      <Logo />
-      <span className="text-[17px] font-extrabold tracking-tight text-fg">EduBridge</span>
+    <a href={href('home')} aria-label="EduBridge" className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md text-fg no-underline">
+      <GraduationCap size={24} className="hidden text-teal-ink dark:text-teal sm:block" aria-hidden />
+      <span className="text-base font-extrabold tracking-tight text-fg sm:text-lg">EduBridge</span>
     </a>
   );
 }
