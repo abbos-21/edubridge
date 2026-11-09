@@ -4,8 +4,8 @@ import { COUNTRY_CODES, TIERS, TIER_INFO, searchUniversities, type UniFilter } f
 import { useI18n } from '../i18n/I18nProvider';
 import { useCatalog } from '../data/CatalogProvider';
 import { href } from '../lib/router';
-import { Button, Card, Field, Input, Select } from '../components/ui';
-import { UniCard } from '../components/common';
+import { Button, Card, Field, Input, PageHeader, Select } from '../components/ui';
+import { UniCard, useSubjectLabel } from '../components/common';
 
 const SUBJECTS = ['business', 'computing', 'engineering', 'medicine', 'humanities', 'law', 'education', 'natural', 'social', 'arts', 'economics', 'agriculture'];
 
@@ -22,20 +22,25 @@ export function Universities({ advanced }: { advanced: boolean }) {
   const set = (patch: Partial<UniFilter>) => setF((p) => ({ ...p, ...patch }));
   const active = Object.values(f).some((v) => v !== undefined && v !== '' && v !== false) || ielts !== '';
 
-  const subjectLabel = (s: string) => ({ business: tx('Business', 'Biznes'), computing: tx('Computing', 'Kompyuter fanlari'), engineering: tx('Engineering', 'Muhandislik'), medicine: tx('Medicine', 'Tibbiyot'), humanities: tx('Humanities', 'Gumanitar fanlar'), law: tx('Law', 'Huquq'), education: tx('Education', 'Ta’lim'), natural: tx('Natural sciences', 'Tabiiy fanlar'), social: tx('Social sciences', 'Ijtimoiy fanlar'), arts: tx('Arts', 'San’at'), economics: tx('Economics', 'Iqtisodiyot'), agriculture: tx('Agriculture', 'Qishloq xo‘jaligi') })[s] ?? s;
+  const subjectLabel = useSubjectLabel();
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <h1 className="text-2xl font-extrabold">{t('nav.universities')}</h1>
-        <a href={advanced ? href('universities', 'finder') : href('universities', 'advanced')}>
-          {advanced ? tx('Back', 'Orqaga') : tx('Advanced search with all filters', 'Barcha filtrlar bilan kengaytirilgan qidiruv')}
-        </a>
-      </div>
+      <PageHeader
+        eyebrow={tx('Catalogue · {0} universities', 'Katalog · {0} ta universitet', data.universities.length)}
+        title={t('nav.universities')}
+        actions={
+          <a href={advanced ? href('universities', 'finder') : href('universities', 'advanced')} className="inline-flex h-10 items-center rounded-lg border border-line bg-surface px-4 text-sm font-semibold text-fg no-underline hover:bg-sunken">
+            {advanced ? tx('Back', 'Orqaga') : tx('Advanced search with all filters', 'Barcha filtrlar bilan kengaytirilgan qidiruv')}
+          </a>
+        }
+      >
+        {tx('Search by full name or abbreviation (e.g. METU, KAIST, TUM), filter by group and compare up to three.', 'To‘liq nomi yoki qisqartmasi (masalan METU, KAIST, TUM) bo‘yicha qidiring, guruh bo‘yicha saralang va uchtagacha universitetni taqqoslang.')}
+      </PageHeader>
 
       <Card className="space-y-3">
         <div className="relative">
-          <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
+          <Search size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" aria-hidden />
           <Input
             type="search"
             aria-label={tx('Search by name or abbreviation', 'Nomi yoki qisqartmasi bo‘yicha qidirish')}
@@ -113,9 +118,9 @@ export function Universities({ advanced }: { advanced: boolean }) {
       {hits.length === 0 ? (
         <p className="py-6 text-center text-muted">{tx('No university matches these filters. Try removing one.', 'Bu filtrlarga mos universitet yo‘q. Birini olib tashlab ko‘ring.')}</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {hits.map((h) => (
-            <div key={h.university.id} className="flex flex-col gap-1">
+            <div key={h.university.id} className="flex h-full flex-col gap-1">
               <UniCard u={h.university} />
               {h.ieltsStatus && (
                 <p className="px-1 text-xs text-muted">

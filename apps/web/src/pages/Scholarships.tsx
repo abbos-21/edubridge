@@ -5,7 +5,7 @@ import { useCatalog } from '../data/CatalogProvider';
 import { href } from '../lib/router';
 import { formatDate, isHttp, isPast } from '../lib/format';
 import type { GrantRecord } from '../lib/types';
-import { Badge, Card, Field, Notice, Select, Tabs } from '../components/ui';
+import { Badge, Card, Field, Notice, PageHeader, Select, Tabs } from '../components/ui';
 import { ExternalLinkText, NotConfirmed, SourceNote } from '../components/common';
 
 /** A localised text object {en, uz}; legacy records may hold {} or other shapes. */
@@ -73,7 +73,7 @@ export function Scholarships() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-extrabold">{tx('Grants and scholarships', 'Grantlar va stipendiyalar')}</h1>
+      <PageHeader eyebrow={tx('Scholarship directory', 'Stipendiyalar katalogi')} title={tx('Grants and scholarships', 'Grantlar va stipendiyalar')} />
       <Notice>
         {tx('These are grant conditions, separate from university entry requirements.', 'Bu grant shartlari, universitetga kirish talablaridan alohida.')}
       </Notice>
@@ -156,7 +156,7 @@ export function GrantDetail({ id }: { id: string | null }) {
           {country && <Badge>{pick(country.name)}</Badge>}
           {(g.levels as string[] | undefined)?.map((l) => <Badge key={l}>{l === 'bachelor' ? t('lvl.bachelor') : l === 'master' ? t('lvl.master') : 'PhD'}</Badge>)}
         </div>
-        <h1 className="mt-2 text-2xl font-extrabold">{g.name}</h1>
+        <h1 className="mt-2 text-[26px] font-extrabold leading-tight md:text-[30px]">{g.name}</h1>
         {isL(g.provider) && <p className="text-muted">{pick(g.provider)}</p>}
       </header>
 

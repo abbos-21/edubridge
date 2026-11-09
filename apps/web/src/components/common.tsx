@@ -1,12 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { ExternalLink, GitCompareArrows, Moon, Sun, SunMoon, X } from 'lucide-react';
+import { Award, Check, ExternalLink, GitCompareArrows, MapPin, Moon, Plus, Sun, SunMoon, X } from 'lucide-react';
 import { LANGS, TIER_INFO, type Lang, type Tier, type University } from '@edubridge/shared';
 import { useI18n } from '../i18n/I18nProvider';
 import { useStore } from '../store/AppStore';
-import { useCatalogState } from '../data/CatalogProvider';
+import { useCatalog, useCatalogState } from '../data/CatalogProvider';
 import { formatDate, hostOf, isHttp } from '../lib/format';
 import { href } from '../lib/router';
-import { Badge, Button, Card, Notice, cx } from './ui';
+import { Badge, Button, Notice, buttonClass, cx } from './ui';
 
 /** "Not confirmed on an official page": a missing value is never shown as zero, free or empty. */
 export function NotConfirmed() {
@@ -52,7 +52,7 @@ export function SourceNote({ urls, checked }: { urls: Array<string | null | unde
   );
 }
 
-const TIER_TONE: Record<Tier, 'info' | 'brand' | 'ok'> = { selective: 'info', middle: 'brand', accessible: 'ok' };
+const TIER_TONE: Record<Tier, 'brand'> = { selective: 'brand', middle: 'brand', accessible: 'brand' };
 
 export function TierBadge({ tier }: { tier: Tier }) {
   const { pick } = useI18n();
@@ -76,19 +76,26 @@ export function CompareButton({ id, compact }: { id: string; compact?: boolean }
     const t = setTimeout(() => setFull(false), 2500);
     return () => clearTimeout(t);
   }, [full]);
+  const label = inList ? tx('In comparison', 'Taqqoslashda') : tx('Compare', 'Taqqoslash');
   return (
-    <span className="inline-flex flex-col">
-      <Button
-        size="sm"
-        variant={inList ? 'primary' : 'secondary'}
-        aria-pressed={inList}
-        onClick={() => {
-          if (toggleCompare(id) === 'full') setFull(true);
-        }}
-      >
-        <GitCompareArrows size={16} aria-hidden />
-        {compact ? null : inList ? tx('In comparison', 'Taqqoslashda') : tx('Compare', 'Taqqoslash')}
-      </Button>
+    <span className="inline-flex flex-col items-end">
+      {compact ? (
+        <button
+          type="button"
+          aria-pressed={inList}
+          aria-label={label}
+          title={label}
+          onClick={() => { if (toggleCompare(id) === 'full') setFull(true); }}
+          className={cx('inline-flex h-8 min-w-8 items-center justify-center gap-1 rounded-md border px-2 text-[12.5px] font-bold', inList ? 'border-navy bg-navy text-navy-ink' : 'border-line bg-surface text-muted hover:text-fg')}
+        >
+          {inList ? <Check size={14} aria-hidden /> : <Plus size={14} aria-hidden />}
+        </button>
+      ) : (
+        <Button size="sm" variant={inList ? 'primary' : 'secondary'} aria-pressed={inList} onClick={() => { if (toggleCompare(id) === 'full') setFull(true); }}>
+          <GitCompareArrows size={16} aria-hidden />
+          {label}
+        </Button>
+      )}
       {full && (
         <span role="status" className="mt-1 text-xs text-warn">
           {tx('You can compare up to 3', 'Ko‘pi bilan 3 tasini taqqoslash mumkin')}
@@ -98,32 +105,66 @@ export function CompareButton({ id, compact }: { id: string; compact?: boolean }
   );
 }
 
+/** Subject keys are stored in the data; these are the labels shown to students. */
+export function useSubjectLabel() {
+  const { tx } = useI18n();
+  return (s: string) =>
+    ({
+      business: tx('Business & Finance', 'Biznes va moliya'),
+      computing: tx('Computing & IT', 'Kompyuter fanlari va IT'),
+      engineering: tx('Engineering', 'Muhandislik'),
+      medicine: tx('Medicine & Health', 'Tibbiyot va sog‘liqni saqlash'),
+      humanities: tx('Humanities & Languages', 'Gumanitar fanlar va tillar'),
+      law: tx('Law', 'Huquq'),
+      education: tx('Education', 'Ta’lim'),
+      natural: tx('Natural Sciences', 'Tabiiy fanlar'),
+      social: tx('Social Sciences', 'Ijtimoiy fanlar'),
+      arts: tx('Arts & Design', 'San’at va dizayn'),
+      economics: tx('Economics', 'Iqtisodiyot'),
+      agriculture: tx('Agriculture', 'Qishloq xo‘jaligi'),
+    })[s] ?? s;
+}
+
 export function UniCard({ u }: { u: University }) {
-  const { tx, t } = useI18n();
-  const levels = (['bachelor', 'master'] as const).filter((l) => u.levels[l] && (u.levels[l]!.open === 'yes' || u.levels[l]!.open === 'integrated'));
+  const { tx, t, pick } = useI18n();
+  const data = useCatalog();
+  const subject = useSubjectLabel();
+  const country = pick(data.countries.find((c) => c.code === u.country)?.name) || u.country;
+  const open = (l: 'bachelor' | 'master') => u.levels[l] && (u.levels[l]!.open === 'yes' || u.levels[l]!.open === 'integrated');
+  const levels = (['bachelor', 'master'] as const).filter(open);
+  const qs = u.ranking?.value;
   return (
-    <Card className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <TierBadge tier={u.tier} />
-        <Badge>{u.type === 'private' ? tx('private', 'xususiy') : tx('public', 'davlat')}</Badge>
-      </div>
-      <div>
-        <h3 className="text-base font-extrabold leading-snug">
-          <a href={href('uni', u.id)} className="no-underline hover:underline text-fg">{u.name}</a>
-        </h3>
-        <p className="text-sm text-muted">{u.city}</p>
-      </div>
-      <p className="text-sm"><QsLine u={u} /></p>
-      <p className="text-sm text-muted">
-        {levels.length ? levels.map((l) => t(l === 'bachelor' ? 'lvl.bachelor' : 'lvl.master')).join(' · ') : <NotConfirmed />}
-      </p>
-      <div className="mt-auto flex flex-wrap gap-2">
-        <a href={href('uni', u.id)} className="inline-flex min-h-[40px] items-center rounded-xl bg-brand px-3 text-sm font-semibold text-brand-fg no-underline">
-          {tx('View details', 'Batafsil')}
+    <article className="flex min-w-0 flex-1 flex-col gap-3 rounded-xl border border-line bg-surface p-4 shadow-card">
+      <div className="flex items-start justify-between gap-3">
+        <a href={href('uni', u.id)} className="min-w-0 text-left no-underline">
+          <p className="text-[12px] font-bold uppercase tracking-wide text-faint">{u.order}. {country}{u.short ? ` · ${u.short}` : ''}</p>
+          <h3 className="mt-0.5 text-[16.5px] font-extrabold leading-snug text-fg hover:text-teal-ink">{u.name}</h3>
+          <p className="mt-1 flex items-center gap-1 text-[13px] text-muted">
+            <MapPin size={13} aria-hidden />
+            {[u.city, u.type === 'private' ? tx('private', 'xususiy') : tx('public', 'davlat')].filter(Boolean).join(' · ')}
+          </p>
         </a>
-        <CompareButton id={u.id} />
+        <CompareButton id={u.id} compact />
       </div>
-    </Card>
+      <div className="flex flex-wrap gap-1.5">
+        <TierBadge tier={u.tier} />
+        <Badge>
+          <Award size={11} aria-hidden />
+          {qs != null ? `QS ${String(qs).startsWith('#') ? qs : `#${qs}`}` : tx('QS not confirmed', 'QS tasdiqlanmagan')}
+        </Badge>
+        {levels.map((l) => (
+          <Badge key={l} tone="ok">
+            <Check size={12} aria-hidden />
+            {t(l === 'bachelor' ? 'lvl.bachelor' : 'lvl.master')}
+          </Badge>
+        ))}
+        {levels.length === 0 && <Badge><NotConfirmed /></Badge>}
+      </div>
+      {u.subjects.length > 0 && <p className="line-clamp-2 text-[13px] text-muted">{u.subjects.slice(0, 6).map(subject).join(' · ')}</p>}
+      <a href={href('uni', u.id)} className="mt-auto self-start text-[13.5px] font-bold hover:underline">
+        {tx('Details and requirements →', 'Batafsil va talablar →')}
+      </a>
+    </article>
   );
 }
 
@@ -138,7 +179,7 @@ export function CompareTray() {
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
         <span className="text-sm font-semibold">{tx('{0} of 3 selected to compare', '3 tadan {0} tasi tanlandi', compare.length)}</span>
         {names.map((n) => (
-          <button key={n.id} type="button" onClick={() => toggleCompare(n.id)} className="inline-flex min-h-[40px] items-center gap-1 rounded-full bg-sunken px-3 text-sm" aria-label={`${tx('Remove', 'Olib tashlash')} ${n.name}`}>
+          <button key={n.id} type="button" onClick={() => toggleCompare(n.id)} className="inline-flex min-h-[40px] items-center gap-1 rounded-full border border-line bg-sunken px-3 text-sm" aria-label={`${tx('Remove', 'Olib tashlash')} ${n.name}`}>
             {n.name}
             <X size={14} aria-hidden />
           </button>
@@ -148,7 +189,7 @@ export function CompareTray() {
           <a
             href={compare.length >= 2 ? href('unicompare', compare.join(',')) : undefined}
             aria-disabled={compare.length < 2}
-            className={cx('inline-flex min-h-[40px] items-center rounded-xl bg-brand px-3 text-sm font-semibold text-brand-fg no-underline', compare.length < 2 && 'pointer-events-none opacity-50')}
+            className={cx(buttonClass('primary', 'sm'), '!text-navy-ink', compare.length < 2 && 'pointer-events-none opacity-50')}
           >
             {compare.length < 2 ? tx('Pick at least 2', 'Kamida 2 tasini tanlang') : tx('Compare now', 'Hozir taqqoslash')}
           </a>
@@ -163,9 +204,9 @@ export const LANG_LABEL: Record<Lang, string> = { uz: 'UZ', ru: 'RU', en: 'EN' }
 export function LangSwitch() {
   const { lang, setLang } = useI18n();
   return (
-    <div role="group" aria-label="Language" className="inline-flex rounded-xl border border-line bg-sunken p-0.5">
+    <div role="group" aria-label="Language" className="flex rounded-lg border border-line bg-surface p-0.5 text-[12.5px] font-bold">
       {LANGS.map((l) => (
-        <button key={l} type="button" aria-pressed={lang === l} onClick={() => setLang(l)} className={cx('min-h-[40px] min-w-[40px] rounded-lg px-2 text-sm font-bold', lang === l ? 'bg-surface text-fg shadow-sm' : 'text-muted')}>
+        <button key={l} type="button" lang={l} aria-pressed={lang === l} onClick={() => setLang(l)} className={cx('min-h-[40px] min-w-[40px] rounded-md px-2', lang === l ? 'bg-navy text-navy-ink' : 'text-muted hover:text-fg')}>
           {LANG_LABEL[l]}
         </button>
       ))}

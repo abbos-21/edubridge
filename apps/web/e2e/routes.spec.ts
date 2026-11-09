@@ -42,7 +42,8 @@ test('tap targets in the header are at least 40px', async ({ page }) => {
   await open(page, 'home');
   for (const b of await page.locator('header button').all()) {
     const box = await b.boundingBox();
-    expect(box!.height).toBeGreaterThanOrEqual(40);
-    expect(box!.width).toBeGreaterThanOrEqual(40);
+    if (!box) continue; // desktop-only buttons are hidden on a phone
+    expect(box.height).toBeGreaterThanOrEqual(40);
+    expect(box.width).toBeGreaterThanOrEqual(40);
   }
 });

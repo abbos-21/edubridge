@@ -3,34 +3,31 @@ import { useI18n } from '../i18n/I18nProvider';
 import { useCatalog } from '../data/CatalogProvider';
 import { href } from '../lib/router';
 import { formatDate } from '../lib/format';
-import { Card, Notice, Section } from '../components/ui';
+import { Card, Notice, PageHeader, Section } from '../components/ui';
+import copy from './countries-copy.json';
 import { ExternalLinkText, NotConfirmed, TierBadge, UniCard } from '../components/common';
 import { GrantCard } from './Scholarships';
 
+/** Title texts of the countries page, written for the first EduBridge app (by index: eyebrow, title, description). */
+const COPY = copy as unknown as Array<{ en: string; uz: string; ru: string }>;
+
 export function Countries() {
-  const { tx, pick } = useI18n();
+  const { tx, pick, lang } = useI18n();
   const { countries, universities } = useCatalog();
+  const k = (i: number) => COPY[i]![lang];
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-extrabold">{tx('Countries', 'Davlatlar')}</h1>
-      <p className="text-muted">
-        {tx('Explore countries', 'Davlatlarni ko‘rish')} — {tx('10 universities in three groups per country.', 'har bir davlatda uchta guruhdagi 10 ta universitet.')}
-      </p>
+    <div>
+      <PageHeader eyebrow={k(0)} title={k(1)}>{k(2)}</PageHeader>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {countries.map((c) => {
           const unis = universities.filter((u) => u.country === c.code);
           return (
-            <Card key={c.code} className="flex flex-col gap-2">
-              <h2 className="text-xl font-extrabold">{pick(c.name)}</h2>
-              <p className="text-sm text-muted">{pick(c.tagline)}</p>
-              <p className="text-sm">
-                {tx('{0} universities', '{0} ta universitet', unis.length)} ·{' '}
-                {TIERS.map((t) => unis.filter((u) => u.tier === t).length).join(' / ')}
-              </p>
-              <a href={href('country', c.code)} className="mt-auto inline-flex min-h-[40px] items-center font-semibold">
-                {tx('Open country page →', 'Davlat sahifasini ochish →')}
-              </a>
-            </Card>
+            <a key={c.code} href={href('country', c.code)} className="flex flex-col rounded-2xl border border-line bg-surface p-5 text-fg no-underline shadow-card transition-colors hover:border-navy/30">
+              <p className="eyebrow">{unis.length} {tx('universities', 'universitet')} · {TIERS.length} {tx('groups', 'guruh')}</p>
+              <h2 className="mt-1 text-[22px] font-extrabold">{pick(c.name)}</h2>
+              <p className="mt-1 text-[14.5px] text-muted">{pick(c.tagline)}</p>
+              <span className="mt-auto pt-4 text-[14px] font-bold text-teal-ink dark:text-teal">{tx('Open country page →', 'Davlat sahifasini ochish →')}</span>
+            </a>
           );
         })}
       </div>
@@ -59,10 +56,10 @@ export function CountryPage({ code }: { code: string | null }) {
   return (
     <div className="space-y-6">
       <div>
-        <a href={href('countries')} className="text-sm">← {tx('All countries', 'Barcha davlatlar')}</a>
-        <p className="eyebrow mt-3">{tx('Country guide', 'Davlat yo‘riqnomasi')}</p>
-        <h1 className="text-3xl font-extrabold">{pick(country.name)}</h1>
-        <p className="mt-1 text-muted">{pick(country.tagline)}</p>
+        <a href={href('countries')} className="text-sm font-semibold">← {tx('All countries', 'Barcha davlatlar')}</a>
+        <p className="eyebrow mt-4">{tx('Country guide', 'Davlat yo‘riqnomasi')}</p>
+        <h1 className="text-[26px] font-extrabold leading-tight md:text-[30px]">{pick(country.name)}</h1>
+        <p className="mt-1.5 max-w-2xl text-[15px] text-muted">{pick(country.tagline)}</p>
       </div>
 
       {country.selection && (
@@ -80,7 +77,7 @@ export function CountryPage({ code }: { code: string | null }) {
         return (
           <Section key={tier} title={pick(TIER_INFO[tier].name)} id={`tier-${tier}`}>
             <p className="mb-3 text-sm text-muted">{pick(TIER_INFO[tier].who)}</p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {list.map((u) => <UniCard key={u.id} u={u} />)}
             </div>
           </Section>

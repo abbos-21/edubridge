@@ -3,46 +3,80 @@ import { AlertTriangle, Info } from 'lucide-react';
 
 export const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(' ');
 
-type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost'; size?: 'md' | 'sm' };
-export const Button = forwardRef<HTMLButtonElement, BtnProps>(function Button({ variant = 'secondary', size = 'md', className, ...p }, ref) {
-  return (
-    <button
-      ref={ref}
-      type="button"
-      {...p}
-      className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-colors disabled:opacity-50 min-h-[44px] px-4',
-        size === 'sm' && 'min-h-[40px] px-3 text-sm',
-        variant === 'primary' && 'bg-brand text-brand-fg hover:opacity-90',
-        variant === 'secondary' && 'border border-line bg-surface hover:bg-sunken',
-        variant === 'ghost' && 'hover:bg-sunken',
-        className,
-      )}
-    />
+type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost'; size?: 'md' | 'sm' | 'lg' };
+/** Same buttons as the original EduBridge: navy primary, outlined secondary, quiet ghost. */
+export const buttonClass = (variant: 'primary' | 'secondary' | 'ghost' = 'secondary', size: 'md' | 'sm' | 'lg' = 'md') =>
+  cx(
+    'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap no-underline',
+    size === 'lg' ? 'h-11 px-5 text-[15px]' : size === 'sm' ? 'h-10 px-3 text-[13.5px]' : 'h-10 px-4 text-sm',
+    variant === 'primary' && 'bg-navy text-navy-ink hover:bg-navy/90',
+    variant === 'secondary' && 'border border-line bg-surface text-fg hover:bg-sunken',
+    variant === 'ghost' && 'text-muted hover:bg-sunken hover:text-fg',
   );
+export const Button = forwardRef<HTMLButtonElement, BtnProps>(function Button({ variant = 'secondary', size = 'md', className, ...p }, ref) {
+  return <button ref={ref} type="button" {...p} className={cx(buttonClass(variant, size), className)} />;
 });
 
 export function Card({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
-  return <div {...p} className={cx('rounded-card border border-line bg-surface p-4 sm:p-5', className)} />;
+  return <div {...p} className={cx('rounded-xl border border-line bg-surface p-4 shadow-card sm:p-5', className)} />;
 }
 
-type Tone = 'neutral' | 'ok' | 'warn' | 'bad' | 'info' | 'brand';
+type Tone = 'neutral' | 'ok' | 'warn' | 'bad' | 'info' | 'brand' | 'teal';
 const tones: Record<Tone, string> = {
-  neutral: 'bg-sunken text-muted',
-  ok: 'bg-ok/10 text-ok',
-  warn: 'bg-warn/10 text-warn',
-  bad: 'bg-bad/10 text-bad',
-  info: 'bg-info/10 text-info',
-  brand: 'bg-brand-soft text-brand',
+  neutral: 'border-line bg-sunken text-muted',
+  ok: 'border-ok/20 bg-ok-soft text-ok',
+  warn: 'border-warn/25 bg-warn-soft text-warn',
+  bad: 'border-bad/20 bg-bad-soft text-bad',
+  info: 'border-info/20 bg-info-soft text-info',
+  brand: 'border-navy/15 bg-navy-soft text-navy',
+  teal: 'border-teal/30 bg-teal-soft text-teal-ink',
 };
 export function Badge({ tone = 'neutral', className, ...p }: HTMLAttributes<HTMLSpanElement> & { tone?: Tone }) {
-  return <span {...p} className={cx('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold', tones[tone], className)} />;
+  return <span {...p} className={cx('inline-flex max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] font-semibold leading-5', tones[tone], className)} />;
+}
+
+/** A filter pill (country, group...). */
+export function Chip({ active, className, ...p }: ButtonHTMLAttributes<HTMLButtonElement> & { active?: boolean }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={!!active}
+      {...p}
+      className={cx('rounded-full border px-3 py-1 text-[13px] font-semibold transition-colors', active ? 'border-navy bg-navy text-navy-ink' : 'border-line bg-surface text-muted hover:text-fg', className)}
+    />
+  );
+}
+
+/** Page title block: small caps line, big title, a sentence, and actions on the right. */
+export function PageHeader({ eyebrow, title, children, actions }: { eyebrow?: ReactNode; title: ReactNode; children?: ReactNode; actions?: ReactNode }) {
+  return (
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0">
+        {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
+        <h1 className="text-[26px] font-extrabold leading-tight md:text-[30px]">{title}</h1>
+        {children && <p className="mt-1.5 max-w-2xl text-[15px] text-muted">{children}</p>}
+      </div>
+      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+    </div>
+  );
+}
+
+/** The EduBridge mark: a navy tile with a teal arch (a bridge). */
+export function Logo({ size = 30 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="rgb(var(--navy))" />
+      <path d="M6 21c3.2-6.4 6.6-9.6 10-9.6S22.8 14.6 26 21" fill="none" stroke="rgb(var(--teal))" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M9.5 21v-3.2M16 21v-6.4M22.5 21v-3.2" stroke="rgb(var(--navy-ink))" strokeWidth="2" strokeLinecap="round" />
+      <path d="M5 22.5h22" stroke="rgb(var(--navy-ink))" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
 }
 
 export function Notice({ tone = 'info', title, children }: { tone?: 'info' | 'warn'; title?: string; children: ReactNode }) {
   const Icon = tone === 'warn' ? AlertTriangle : Info;
   return (
-    <div role="note" className={cx('flex gap-3 rounded-xl border p-3 text-sm', tone === 'warn' ? 'border-warn/40 bg-warn/10' : 'border-info/30 bg-info/10')}>
+    <div role="note" className={cx('flex gap-3 rounded-xl border p-3 text-sm', tone === 'warn' ? 'border-warn/30 bg-warn-soft' : 'border-info/25 bg-info-soft')}>
       <Icon size={18} className={cx('mt-0.5 shrink-0', tone === 'warn' ? 'text-warn' : 'text-info')} aria-hidden />
       <div>
         {title && <p className="font-bold">{title}</p>}
@@ -54,7 +88,7 @@ export function Notice({ tone = 'info', title, children }: { tone?: 'info' | 'wa
 
 export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs: Array<{ id: T; label: string }>; value: T; onChange: (v: T) => void; label: string }) {
   return (
-    <div role="tablist" aria-label={label} className="inline-flex rounded-xl border border-line bg-sunken p-1">
+    <div role="tablist" aria-label={label} className="inline-flex max-w-full flex-wrap rounded-lg border border-line bg-surface p-0.5">
       {tabs.map((t) => (
         <button
           key={t.id}
@@ -64,7 +98,7 @@ export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs:
           aria-selected={value === t.id}
           aria-controls={`panel-${t.id}`}
           onClick={() => onChange(t.id)}
-          className={cx('min-h-[40px] rounded-lg px-4 text-sm font-semibold', value === t.id ? 'bg-surface shadow-sm text-fg' : 'text-muted hover:text-fg')}
+          className={cx('min-h-[40px] rounded-md px-4 text-sm font-semibold', value === t.id ? 'bg-navy text-navy-ink' : 'text-muted hover:text-fg')}
         >
           {t.label}
         </button>
@@ -75,12 +109,12 @@ export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs:
 
 export const Field = ({ label, children }: { label: string; children: ReactNode }) => (
   <label className="flex flex-col gap-1 text-sm">
-    <span className="font-semibold">{label}</span>
+    <span className="text-[13px] font-semibold">{label}</span>
     {children}
   </label>
 );
 
-const control = 'min-h-[44px] w-full rounded-xl border border-line bg-surface px-3 text-fg placeholder:text-muted';
+const control = 'min-h-[44px] w-full rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-fg placeholder:text-faint focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/25';
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...p }, ref) {
   return <input ref={ref} {...p} className={cx(control, className)} />;
 });
@@ -90,8 +124,8 @@ export function Select({ className, ...p }: SelectHTMLAttributes<HTMLSelectEleme
 
 export function Section({ title, children, id }: { title: string; children: ReactNode; id?: string }) {
   return (
-    <section id={id} aria-labelledby={id ? `${id}-h` : undefined} className="py-3">
-      <h2 id={id ? `${id}-h` : undefined} className="mb-2 text-lg font-extrabold">{title}</h2>
+    <section id={id} aria-labelledby={id ? `${id}-h` : undefined} className="py-4">
+      <h2 id={id ? `${id}-h` : undefined} className="mb-3 text-[20px] font-extrabold">{title}</h2>
       {children}
     </section>
   );

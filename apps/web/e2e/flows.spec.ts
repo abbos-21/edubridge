@@ -73,7 +73,7 @@ test('language switch to Russian translates the page and persists', async ({ pag
   await seed(page, { lang: 'en' });
   await page.goto('/#home');
   await page.getByRole('button', { name: 'RU' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Выбирайте университеты');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Ваш путь к учёбе за рубежом');
   await page.goto('/#country--TR');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Турция');
   await expect(page.getByText('Как были выбраны эти 10')).toBeVisible();
@@ -84,7 +84,7 @@ test('language switch to Russian translates the page and persists', async ({ pag
 test('Uzbek is the default language', async ({ page }) => {
   await page.goto('/#home');
   await expect(page.locator('html')).toHaveAttribute('lang', 'uz');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Tekshirib');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Xorijda o‘qish sari');
 });
 
 test('when the API is unreachable the saved snapshot is used and labelled', async ({ page }) => {

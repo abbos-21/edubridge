@@ -5,7 +5,7 @@ import { useCatalog } from '../data/CatalogProvider';
 import { href } from '../lib/router';
 import { formatDate, formatMoney, isHttp, isPast } from '../lib/format';
 import { Badge, Card, Notice, Tabs } from '../components/ui';
-import { CompareButton, ExternalLinkText, NotConfirmed, QsLine, SourceNote, TierBadge } from '../components/common';
+import { CompareButton, ExternalLinkText, NotConfirmed, QsLine, SourceNote, TierBadge, useSubjectLabel } from '../components/common';
 
 const isL = (x: unknown): x is L => !!x && typeof x === 'object' && typeof (x as L).en === 'string' && (x as L).en.length > 0;
 
@@ -213,6 +213,7 @@ function LevelPanel({ u, level }: { u: University; level: Level }) {
 
 export function UniProfile({ id }: { id: string | null }) {
   const { tx, pick, t, lang } = useI18n();
+  const subject = useSubjectLabel();
   const { universities, countries } = useCatalog();
   const [level, setLevel] = useState<Level>('bachelor');
   const u = universities.find((x) => x.id === id);
@@ -235,7 +236,7 @@ export function UniProfile({ id }: { id: string | null }) {
           <TierBadge tier={u.tier} />
           <Badge>{u.type === 'private' ? tx('private', 'xususiy') : tx('public', 'davlat')}</Badge>
         </div>
-        <h1 className="text-3xl font-extrabold">{u.name}</h1>
+        <h1 className="text-[26px] font-extrabold leading-tight md:text-[30px]">{u.name}</h1>
         <p className="text-muted">{u.city}{u.campus && isL(u.campus) ? ` · ${pick(u.campus)}` : ''}</p>
         <div className="flex flex-wrap gap-2"><CompareButton id={u.id} /></div>
       </header>
@@ -262,7 +263,7 @@ export function UniProfile({ id }: { id: string | null }) {
         </Row>
         <Row n={2} title={tx('Subjects', 'Fanlar')}>
           {u.subjects.length ? (
-            <div className="flex flex-wrap gap-1.5">{u.subjects.map((s) => <Badge key={s}>{s}</Badge>)}</div>
+            <div className="flex flex-wrap gap-1.5">{u.subjects.map((s) => <Badge key={s}>{subject(s)}</Badge>)}</div>
           ) : (
             <p>{tx('Subjects offered were not recorded. Check the programme catalogue.', 'Taklif etiladigan fanlar qayd etilmagan. Dastur katalogini tekshiring.')}</p>
           )}
