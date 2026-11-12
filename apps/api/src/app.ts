@@ -8,32 +8,22 @@ import type { PrismaClient } from '@prisma/client';
 import { ZodError } from 'zod';
 import type { Config } from './config';
 import { ApiError } from './errors';
-import { CatalogRepo } from './lib/catalogRepo';
+import { CatalogStore } from './lib/catalogStore';
 import { registerCatalogRoutes } from './routes/catalog';
 import { registerAuthRoutes } from './routes/auth';
-import { registerMeRoutes } from './routes/me';
-import { registerUserDataRoutes } from './routes/userdata';
-import { registerTransferRoutes } from './routes/transfer';
+import { registerStateRoutes } from './routes/state';
+import { registerTelegramRoutes } from './routes/telegram';
+import { registerRecheckRoutes } from './routes/recheck';
 import { checkCsrf, resolveSession } from './auth/session';
 import { createGoogleClient, type GoogleClient } from './auth/google';
 import { createAnthropicLlm, type Llm } from './ai/llm';
 import { createMockLlm } from './ai/mock';
 import { AiGuard } from './ai/guard';
 import { registerAiRoutes } from './routes/ai';
-import { registerAdminRoutes, type AdminRouteInfo } from './routes/admin';
-import { registerDemoRoutes } from './routes/demo';
 import { Metrics, registerMetricsRoute } from './routes/metrics';
-import { registerReminderRoutes } from './routes/reminders';
 import { createTelegramApi, type TelegramApi } from './bot/telegram';
 
 export type AppDeps = { config: Config; prisma: PrismaClient; google?: GoogleClient; llm?: Llm; telegram?: TelegramApi };
-
-declare module 'fastify' {
-  interface FastifyInstance {
-    /** every admin route with the roles allowed to call it (used by the access tests) */
-    adminRoutes: AdminRouteInfo[];
-  }
-}
 
 export async function buildApp({ config, prisma, google, llm, telegram }: AppDeps): Promise<FastifyInstance> {
   const app = Fastify({
@@ -99,8 +89,7 @@ export async function buildApp({ config, prisma, google, llm, telegram }: AppDep
     reply.status(404).send({ error: { code: 'not_found', message: 'Route not found', requestId: req.id } }),
   );
 
-  const repo = new CatalogRepo(prisma);
-  const adminRoutes: AdminRouteInfo[] = [];
+  const store = new CatalogStore(prisma);
 
   await app.register(
     async (api) => {
@@ -108,24 +97,21 @@ export async function buildApp({ config, prisma, google, llm, telegram }: AppDep
       api.get('/ready', async (_req, reply) => {
         try {
           await prisma.$queryRaw`SELECT 1`;
-          const version = await repo.version();
+          const version = await store.version();
           if (version < 1) return reply.status(503).send({ status: 'not_ready', reason: 'catalogue not imported' });
           return { status: 'ready', catalogueVersion: version };
         } catch {
           return reply.status(503).send({ status: 'not_ready', reason: 'database unavailable' });
         }
       });
-      registerCatalogRoutes(api, repo);
+      registerCatalogRoutes(api, { config, prisma, store, secret });
       registerAuthRoutes(api, { config, prisma, google: google ?? createGoogleClient(config), secret });
-      registerMeRoutes(api, { config, prisma });
-      registerUserDataRoutes(api, { prisma });
-      registerTransferRoutes(api, { prisma });
+      registerStateRoutes(api, { config, prisma });
       const model = llm ?? (config.AI_MOCK ? createMockLlm() : createAnthropicLlm(config));
+      registerAiRoutes(api, { guard: new AiGuard(config, prisma, model), timeoutMs: config.AI_TIMEOUT_MS });
+      registerTelegramRoutes(api, { config, prisma, telegram: telegram ?? createTelegramApi(config) });
+      registerRecheckRoutes(api, { config, prisma });
       registerMetricsRoute(api, { config, prisma, metrics });
-      registerDemoRoutes(api, prisma);
-      registerReminderRoutes(api, { config, prisma, repo, telegram: telegram ?? createTelegramApi(config) });
-      adminRoutes.push(...registerAdminRoutes(api, { config, prisma, repo, secret }));
-      registerAiRoutes(api, { prisma, repo, guard: new AiGuard(config, prisma, model), timeoutMs: config.AI_TIMEOUT_MS });
     },
     { prefix: '/api/v1' },
   );
@@ -134,6 +120,5 @@ export async function buildApp({ config, prisma, google, llm, telegram }: AppDep
     await prisma.$disconnect();
   });
 
-  app.decorate('adminRoutes', adminRoutes);
   return app;
 }

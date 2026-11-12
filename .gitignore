@@ -1,6 +1,5 @@
 node_modules
 dist
-dist-single
 .env
 .env.*
 !.env.example
@@ -8,8 +7,6 @@ dist-single
 *.log
 coverage
 .DS_Store
-uz_missing.txt
-e2e/shots
 test-results
-**/e2e/shots
-**/playwright-report
+playwright-report
+.work

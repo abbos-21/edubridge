@@ -1,131 +1,94 @@
-import type { Prisma, PrismaClient, FindingKind } from '@prisma/client';
-import type { PoliteFetcher } from './fetcher';
-
-const TEXT_CAP = 30_000;
-const STALE_RUN_MS = 2 * 3_600_000;
-
-/** Same page, ignoring http/https, "www.", a trailing slash and the #fragment. */
-export function normaliseUrl(u: string): string {
-  try {
-    const x = new URL(u);
-    return `${x.hostname.replace(/^www\./, '').toLowerCase()}${x.pathname.replace(/\/+$/, '')}${x.search}`;
-  } catch {
-    return u;
-  }
-}
-
-/** A few changed lines, so a reviewer sees what moved without opening both versions. */
-export function diffSnippet(oldText: string | null, newText: string): string {
-  if (!oldText) return '';
-  const a = new Set(oldText.split('\n').map((l) => l.trim()).filter(Boolean));
-  const b = new Set(newText.split('\n').map((l) => l.trim()).filter(Boolean));
-  const cut = (s: string) => (s.length > 200 ? s.slice(0, 200) + '…' : s);
-  const removed = [...a].filter((l) => !b.has(l)).slice(0, 6).map((l) => `- ${cut(l)}`);
-  const added = [...b].filter((l) => !a.has(l)).slice(0, 6).map((l) => `+ ${cut(l)}`);
-  return [...removed, ...added].join('\n');
-}
-
-export type RecheckSummary = {
-  urls: number;
-  unchanged: number;
-  newBaseline: number;
-  changed: number;
-  broken: number;
-  blocked: number;
-  moved: number;
-  skippedManual: number;
-  manual: Array<{ url: string; reason: string }>;
-  durationMs: number;
-};
+import type { PrismaClient } from '@prisma/client';
+import type { Config } from '../config';
+import { CatalogStore, collectSources, keyOf } from '../lib/catalogStore';
+import { PoliteFetcher } from './fetcher';
 
 /**
- * One pass over the `sources` table. It records what it finds as review items and nothing else: it never edits
- * the catalogue. Pages that refuse robots or automation are listed for a manual check and never bypassed.
- * `urlPrefix` limits the pass (used by tests so they never touch the real internet).
+ * Link recheck. Once a month (or when an admin asks) every source link in the catalogue is fetched politely. The
+ * page text is hashed and compared with the last good hash: a change, a broken link, a redirect or a block becomes a
+ * finding for a person to read. The recheck NEVER edits the catalogue.
  */
-export async function runRecheck(prisma: PrismaClient, fetcher: PoliteFetcher, runId: string, opts: { urlPrefix?: string } = {}): Promise<RecheckSummary> {
-  const started = Date.now();
-  await prisma.recheckRun.update({ where: { id: runId }, data: { status: 'running', startedAt: new Date() } });
-  const sum: RecheckSummary = { urls: 0, unchanged: 0, newBaseline: 0, changed: 0, broken: 0, blocked: 0, moved: 0, skippedManual: 0, manual: [], durationMs: 0 };
-  try {
-    const rows = await prisma.source.findMany({ where: opts.urlPrefix ? { url: { startsWith: opts.urlPrefix } } : {}, orderBy: { url: 'asc' } });
-    const byUrl = new Map<string, typeof rows>();
-    for (const r of rows) byUrl.set(r.url, [...(byUrl.get(r.url) ?? []), r]);
-    sum.urls = byUrl.size;
+const MANUAL_HOSTS = /(^|\.)topuniversities\.com$|(^|\.)linkedin\.com$/i; // sites that refuse automated reading: checked by hand
 
-    for (const [url, group] of byUrl) {
-      const first = group[0]!;
-      const prev = group.find((g) => g.lastHash) ?? first;
-      const now = new Date();
-      const openOfKind = async (kind: FindingKind) => prisma.recheckFinding.findFirst({ where: { sourceId: { in: group.map((g) => g.id) }, kind, status: 'open' }, select: { id: true } });
-      const record = async (kind: FindingKind, data: { oldHash?: string | null; newHash?: string | null; snippet?: string; httpStatus?: number | null; finalUrl?: string | null; note?: string }) => {
-        if (await openOfKind(kind)) return; // already waiting for a reviewer
-        await prisma.recheckFinding.create({
-          data: { runId, sourceId: first.id, kind, oldHash: data.oldHash ?? null, newHash: data.newHash ?? null, diffSnippet: data.snippet || null, prevCheckedAt: prev.lastCheckedAt, httpStatus: data.httpStatus ?? null, finalUrl: data.finalUrl ?? null, note: data.note ?? null },
-        });
-      };
-      const update = (data: Prisma.SourceUpdateManyMutationInput) => prisma.source.updateMany({ where: { url }, data: { lastCheckedAt: now, ...data } });
-
-      // known to block automation (for example QS): never fetched, listed for a person to open
-      if (group.some((g) => g.blocksAutomation)) {
-        sum.skippedManual++;
-        sum.manual.push({ url, reason: 'blocks_automation' });
-        await update({ lastStatus: 'blocked' });
-        await record('blocked', { note: 'blocks_automation' });
-        sum.blocked++;
-        continue;
-      }
-
-      const out = await fetcher.fetchPage(url);
-      if (out.kind === 'blocked') {
-        sum.blocked++;
-        sum.manual.push({ url, reason: out.reason });
-        // refusals by robots/forbidden/captcha are remembered so the next run does not knock again; a rate limit is temporary
-        await update({ lastStatus: 'blocked', httpStatus: out.status ?? null, finalUrl: out.finalUrl, ...(out.reason === 'rate_limited' ? {} : { blocksAutomation: true }) });
-        await record('blocked', { httpStatus: out.status, finalUrl: out.finalUrl, note: out.reason });
-      } else if (out.kind === 'broken') {
-        sum.broken++;
-        await update({ lastStatus: 'broken', httpStatus: out.status, finalUrl: out.finalUrl });
-        await record('broken', { httpStatus: out.status, finalUrl: out.finalUrl, note: out.reason });
-      } else {
-        const moved = normaliseUrl(out.finalUrl) !== normaliseUrl(url);
-        const changed = !!prev.lastHash && prev.lastHash !== out.hash;
-        const snippet = changed ? diffSnippet(prev.lastText, out.text) : '';
-        await update({ lastStatus: moved ? 'moved' : changed ? 'changed' : 'ok', lastHash: out.hash, httpStatus: out.status, finalUrl: out.finalUrl, lastText: out.text.slice(0, TEXT_CAP) });
-        if (moved) { sum.moved++; await record('moved', { oldHash: prev.lastHash, newHash: out.hash, httpStatus: out.status, finalUrl: out.finalUrl, note: out.finalUrl }); }
-        else if (changed) { sum.changed++; await record('changed', { oldHash: prev.lastHash, newHash: out.hash, snippet, httpStatus: out.status, finalUrl: out.finalUrl }); }
-        else if (!prev.lastHash) sum.newBaseline++;
-        else sum.unchanged++;
-      }
-    }
-    sum.durationMs = Date.now() - started;
-    await prisma.recheckRun.update({ where: { id: runId }, data: { status: 'done', finishedAt: new Date(), summary: sum as unknown as Prisma.InputJsonValue } });
-    return sum;
-  } catch (err) {
-    await prisma.recheckRun.update({ where: { id: runId }, data: { status: 'failed', finishedAt: new Date(), summary: { error: (err as Error).message } } });
-    throw err;
+/** Makes the Source table match the links currently in the catalogue datasets. */
+export async function syncSources(prisma: PrismaClient, store: CatalogStore) {
+  const raw = await store.raw();
+  const wanted = new Map<string, { dataset: string; recordId: string; field: string; url: string }>();
+  for (const [dataset, data] of Object.entries(raw)) {
+    if (!Array.isArray(data)) continue;
+    data.forEach((rec, i) => {
+      for (const s of collectSources(rec)) wanted.set(`${dataset}|${keyOf(rec, i)}|${s.field}|${s.url}`, { dataset, recordId: keyOf(rec, i), field: s.field, url: s.url });
+    });
   }
+  const have = await prisma.source.findMany({ select: { id: true, dataset: true, recordId: true, field: true, url: true } });
+  const haveKeys = new Set(have.map((s) => `${s.dataset}|${s.recordId}|${s.field}|${s.url}`));
+  const fresh = [...wanted.entries()].filter(([k]) => !haveKeys.has(k)).map(([, v]) => ({ ...v, blocksAutomation: MANUAL_HOSTS.test(new URL(v.url).hostname) }));
+  if (fresh.length) await prisma.source.createMany({ data: fresh, skipDuplicates: true });
+  const stale = have.filter((s) => !wanted.has(`${s.dataset}|${s.recordId}|${s.field}|${s.url}`));
+  if (stale.length) await prisma.source.deleteMany({ where: { id: { in: stale.map((s) => s.id) } } });
+  return { added: fresh.length, removed: stale.length, total: wanted.size };
 }
 
-/** Worker step: fail stuck runs, queue the monthly run when it is due, and run the oldest queued one. */
-export async function processRecheckQueue(prisma: PrismaClient, fetcher: PoliteFetcher, o: { intervalDays: number; scheduleEnabled: boolean }, now = new Date()): Promise<{ ran: string | null; queued: boolean }> {
-  await prisma.recheckRun.updateMany({ where: { status: 'running', startedAt: { lt: new Date(now.getTime() - STALE_RUN_MS) } }, data: { status: 'failed', finishedAt: now, summary: { error: 'stuck: no result after 2 hours' } } });
-  let queued = false;
-  if (o.scheduleEnabled) {
-    const last = await prisma.recheckRun.findFirst({ where: { status: { in: ['queued', 'running', 'done'] } }, orderBy: { createdAt: 'desc' } });
-    if (!last || now.getTime() - last.createdAt.getTime() >= o.intervalDays * 86_400_000) {
-      await prisma.recheckRun.create({ data: { trigger: 'schedule', status: 'queued' } });
-      queued = true;
-    }
-  }
-  const next = await prisma.recheckRun.findFirst({ where: { status: 'queued' }, orderBy: { createdAt: 'asc' } });
-  if (!next) return { ran: null, queued };
-  const claimed = await prisma.recheckRun.updateMany({ where: { id: next.id, status: 'queued' }, data: { status: 'running', startedAt: now } });
-  if (!claimed.count) return { ran: null, queued };
+const snippet = (before: string | null, after: string): string => {
+  const a = new Set((before ?? '').split(/\n+/).map((l) => l.trim()).filter(Boolean));
+  const b = after.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  const added = b.filter((l) => !a.has(l)).slice(0, 4).map((l) => `+ ${l.slice(0, 160)}`);
+  const bset = new Set(b);
+  const removed = [...a].filter((l) => !bset.has(l)).slice(0, 4).map((l) => `- ${l.slice(0, 160)}`);
+  return [...removed, ...added].join('\n');
+};
+
+export async function runRecheck(prisma: PrismaClient, config: Config, runId: string, fetcher = new PoliteFetcher({ userAgent: `EduBridgeBot/1.0 (+${config.APP_ORIGIN}/#info--about)`, hostDelayMs: config.RECHECK_HOST_DELAY_MS })) {
+  await prisma.recheckRun.update({ where: { id: runId }, data: { status: 'running', startedAt: new Date() } });
+  const sources = await prisma.source.findMany({ where: { blocksAutomation: false }, orderBy: { url: 'asc' } });
+  const urls = new Map<string, typeof sources>(); // one fetch per distinct URL
+  for (const s of sources) urls.set(s.url, [...(urls.get(s.url) ?? []), s]);
+  const summary = { checked: 0, changed: 0, broken: 0, blocked: 0, moved: 0, baseline: 0 };
   try {
-    await runRecheck(prisma, fetcher, next.id);
-  } catch {
-    /* recorded on the run */
+    for (const [url, group] of urls) {
+      const out = await fetcher.fetchPage(url);
+      summary.checked++;
+      const first = group[0]!;
+      const finding = async (kind: 'changed' | 'broken' | 'blocked' | 'moved', extra: Record<string, unknown> = {}) => {
+        await prisma.recheckFinding.create({ data: { runId, sourceId: first.id, kind, prevCheckedAt: first.lastCheckedAt, ...extra } as never });
+        summary[kind]++;
+      };
+      const mark = (data: Record<string, unknown>) => prisma.source.updateMany({ where: { id: { in: group.map((g) => g.id) } }, data: { lastCheckedAt: new Date(), ...data } });
+      if (out.kind === 'ok') {
+        if (first.lastHash && first.lastHash !== out.hash) await finding('changed', { oldHash: first.lastHash, newHash: out.hash, diffSnippet: snippet(first.lastText, out.text), httpStatus: out.status, finalUrl: out.finalUrl });
+        else if (out.finalUrl !== url && first.finalUrl !== out.finalUrl && first.lastHash) await finding('moved', { httpStatus: out.status, finalUrl: out.finalUrl });
+        else if (!first.lastHash) summary.baseline++;
+        await mark({ lastStatus: 'ok', lastHash: out.hash, httpStatus: out.status, finalUrl: out.finalUrl, lastText: out.text.slice(0, 20_000) });
+      } else if (out.kind === 'blocked') {
+        await finding('blocked', { httpStatus: out.status ?? null, finalUrl: out.finalUrl, note: out.reason });
+        await mark({ lastStatus: `blocked:${out.reason}`, httpStatus: out.status ?? null });
+      } else {
+        await finding('broken', { httpStatus: out.status, finalUrl: out.finalUrl, note: out.reason });
+        await mark({ lastStatus: 'broken', httpStatus: out.status });
+      }
+    }
+    await prisma.recheckRun.update({ where: { id: runId }, data: { status: 'done', finishedAt: new Date(), summary } });
+  } catch (e) {
+    await prisma.recheckRun.update({ where: { id: runId }, data: { status: 'failed', finishedAt: new Date(), summary: { ...summary, error: String((e as Error).message).slice(0, 200) } } });
+  } finally {
+    await fetcher.close();
   }
-  return { ran: next.id, queued };
+  return summary;
+}
+
+/** Called by the worker every few minutes: starts a queued run, or queues the monthly one. */
+export async function recheckTick(prisma: PrismaClient, config: Config, store: CatalogStore, now = new Date()) {
+  if ((await store.version()) < 1) return null; // nothing to check before the catalogue is imported
+  const running = await prisma.recheckRun.findFirst({ where: { status: 'running' } });
+  if (running) return null;
+  let run = await prisma.recheckRun.findFirst({ where: { status: 'queued' }, orderBy: { createdAt: 'asc' } });
+  if (!run) {
+    if (!config.RECHECK_ENABLED) return null;
+    const last = await prisma.recheckRun.findFirst({ where: { status: { in: ['done', 'failed'] } }, orderBy: { createdAt: 'desc' } });
+    if (last && now.getTime() - last.createdAt.getTime() <= config.RECHECK_INTERVAL_DAYS * 86_400_000) return null;
+  }
+  const synced = await syncSources(prisma, store);
+  if (synced.total === 0) return null; // no links yet: do not record an empty run
+  run ??= await prisma.recheckRun.create({ data: { trigger: 'schedule' } });
+  return runRecheck(prisma, config, run.id);
 }

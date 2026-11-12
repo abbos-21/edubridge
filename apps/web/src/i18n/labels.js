@@ -1,0 +1,511 @@
+const tS = (e) => e;
+export const nS = tS({
+  'nav.home': {
+    en: 'Home',
+    uz: 'Bosh sahifa',
+  },
+  'nav.universities': {
+    en: 'Explore Universities',
+    uz: 'Universitetlar',
+  },
+  'nav.scholarships': {
+    en: 'Scholarships',
+    uz: 'Grantlar',
+  },
+  'nav.countries': {
+    en: 'Countries',
+    uz: 'Davlatlar',
+  },
+  'nav.glossary': {
+    en: 'Glossary',
+    uz: 'Lug‘at',
+  },
+  'nav.roadmap': {
+    en: 'Preparation plan',
+    uz: 'Tayyorgarlik rejasi',
+  },
+  'nav.how': {
+    en: 'How It Works',
+    uz: 'Qanday ishlaydi',
+  },
+  'nav.signin': {
+    en: 'Sign In',
+    uz: 'Kirish',
+  },
+  'nav.getStarted': {
+    en: 'Get Started',
+    uz: 'Boshlash',
+  },
+  'nav.dashboard': {
+    en: 'Dashboard',
+    uz: 'Boshqaruv paneli',
+  },
+  'nav.plans': {
+    en: 'Application plans',
+    uz: 'Ariza rejalari',
+  },
+  'nav.calendar': {
+    en: 'Calendar',
+    uz: 'Taqvim',
+  },
+  'nav.documents': {
+    en: 'Documents',
+    uz: 'Hujjatlar',
+  },
+  'nav.writing': {
+    en: 'Writing tutor',
+    uz: 'Yozish yordamchisi',
+  },
+  'nav.adviser': {
+    en: 'Profile builder',
+    uz: 'Profilni kuchaytirish',
+  },
+  'nav.assistant': {
+    en: 'AI advisor',
+    uz: 'SI maslahatchi',
+  },
+  'nav.compare': {
+    en: 'Compare',
+    uz: 'Solishtirish',
+  },
+  'nav.budget': {
+    en: 'Budget planner',
+    uz: 'Byudjet rejasi',
+  },
+  'nav.settings': {
+    en: 'Settings & data',
+    uz: 'Sozlamalar va ma’lumotlar',
+  },
+  'nav.profile': {
+    en: 'My profile',
+    uz: 'Mening profilim',
+  },
+  'nav.discover': {
+    en: 'Discover',
+    uz: 'Izlash',
+  },
+  'nav.prepare': {
+    en: 'Prepare',
+    uz: 'Tayyorlanish',
+  },
+  'nav.plan': {
+    en: 'Plan',
+    uz: 'Rejalashtirish',
+  },
+  'nav.menu': {
+    en: 'Menu',
+    uz: 'Menyu',
+  },
+  'nav.close': {
+    en: 'Close',
+    uz: 'Yopish',
+  },
+  'nav.tryDemo': {
+    en: 'Try Demo',
+    uz: 'Namoyishni sinash',
+  },
+  'nav.exitDemo': {
+    en: 'Exit demo',
+    uz: 'Namoyishdan chiqish',
+  },
+  'nav.notifications': {
+    en: 'Notifications',
+    uz: 'Bildirishnomalar',
+  },
+  'nav.skip': {
+    en: 'Skip to content',
+    uz: 'Asosiy qismga o‘tish',
+  },
+  'nav.language': {
+    en: 'Language',
+    uz: 'Til',
+  },
+  'a.view': {
+    en: 'View details',
+    uz: 'Batafsil',
+  },
+  'a.save': {
+    en: 'Save',
+    uz: 'Saqlash',
+  },
+  'a.saved': {
+    en: 'Saved',
+    uz: 'Saqlangan',
+  },
+  'a.compare': {
+    en: 'Compare',
+    uz: 'Solishtirish',
+  },
+  'a.inCompare': {
+    en: 'In comparison',
+    uz: 'Solishtirishda',
+  },
+  'a.addPlan': {
+    en: 'Add to plan',
+    uz: 'Rejaga qo‘shish',
+  },
+  'a.openPlan': {
+    en: 'Open plan',
+    uz: 'Rejani ochish',
+  },
+  'a.back': {
+    en: 'Back',
+    uz: 'Orqaga',
+  },
+  'a.next': {
+    en: 'Next',
+    uz: 'Keyingi',
+  },
+  'a.cancel': {
+    en: 'Cancel',
+    uz: 'Bekor qilish',
+  },
+  'a.delete': {
+    en: 'Delete',
+    uz: 'O‘chirish',
+  },
+  'a.edit': {
+    en: 'Edit',
+    uz: 'Tahrirlash',
+  },
+  'a.add': {
+    en: 'Add',
+    uz: 'Qo‘shish',
+  },
+  'a.clear': {
+    en: 'Clear',
+    uz: 'Tozalash',
+  },
+  'a.confirm': {
+    en: 'Confirm',
+    uz: 'Tasdiqlash',
+  },
+  'a.official': {
+    en: 'Official website',
+    uz: 'Rasmiy sayt',
+  },
+  'a.apply': {
+    en: 'Official application page',
+    uz: 'Rasmiy ariza sahifasi',
+  },
+  'a.reset': {
+    en: 'Reset',
+    uz: 'Qayta tiklash',
+  },
+  'a.search': {
+    en: 'Search',
+    uz: 'Qidirish',
+  },
+  'a.markRead': {
+    en: 'Mark all as read',
+    uz: 'Hammasini o‘qilgan deb belgilash',
+  },
+  'v.verified': {
+    en: 'Verified from official source',
+    uz: 'Rasmiy manbadan tekshirilgan',
+  },
+  'v.partial': {
+    en: 'Partially verified',
+    uz: 'Qisman tekshirilgan',
+  },
+  'v.demo': {
+    en: 'Demo data — not real',
+    uz: 'Namoyish ma’lumoti — haqiqiy emas',
+  },
+  'v.outdated': {
+    en: 'Outdated — recheck',
+    uz: 'Eskirgan — qayta tekshiring',
+  },
+  'v.checked': {
+    en: 'Last checked {date}',
+    uz: 'Oxirgi tekshiruv: {date}',
+  },
+  'dl.upcoming': {
+    en: '{days} days left',
+    uz: '{days} kun qoldi',
+  },
+  'dl.today': {
+    en: 'Due today',
+    uz: 'Bugun',
+  },
+  'dl.unverified': {
+    en: 'Not verified',
+    uz: 'Tasdiqlanmagan',
+  },
+  'dl.closed': {
+    en: 'Closed',
+    uz: 'Yopilgan',
+  },
+  'dl.notAnnounced': {
+    en: 'Not announced',
+    uz: 'E’lon qilinmagan',
+  },
+  'dl.varies': {
+    en: 'Varies by programme',
+    uz: 'Dasturga qarab',
+  },
+  'dl.demo': {
+    en: 'Demo date',
+    uz: 'Namoyish sanasi',
+  },
+  'dl.deadline': {
+    en: 'Deadline',
+    uz: 'Muddat',
+  },
+  'el.eligible': {
+    en: 'Potentially eligible',
+    uz: 'Mos kelishi mumkin',
+  },
+  'el.verify': {
+    en: 'Needs verification',
+    uz: 'Tekshirish kerak',
+  },
+  'el.missing': {
+    en: 'Missing information',
+    uz: 'Ma’lumot yetishmaydi',
+  },
+  'el.not_eligible': {
+    en: 'Not eligible',
+    uz: 'Mos emas',
+  },
+  'el.noProfile': {
+    en: 'Create a profile to check eligibility',
+    uz: 'Moslikni tekshirish uchun profil yarating',
+  },
+  'ck.met': {
+    en: 'Appears satisfied',
+    uz: 'Bajarilgan ko‘rinadi',
+  },
+  'ck.not_met': {
+    en: 'Not satisfied',
+    uz: 'Bajarilmagan',
+  },
+  'ck.verify': {
+    en: 'Check manually',
+    uz: 'Qo‘lda tekshiring',
+  },
+  'ck.missing': {
+    en: 'Missing information',
+    uz: 'Ma’lumot yo‘q',
+  },
+  'ck.na': {
+    en: 'Not applicable',
+    uz: 'Tegishli emas',
+  },
+  'lvl.bachelor': {
+    en: 'Bachelor’s',
+    uz: 'Bakalavr',
+  },
+  'lvl.master': {
+    en: 'Master’s',
+    uz: 'Magistratura',
+  },
+  'lvl.phd': {
+    en: 'PhD',
+    uz: 'PhD',
+  },
+  'st.interested': {
+    en: 'Interested',
+    uz: 'Qiziqyapman',
+  },
+  'st.researching': {
+    en: 'Researching',
+    uz: 'O‘rganyapman',
+  },
+  'st.preparing': {
+    en: 'Preparing documents',
+    uz: 'Hujjat tayyorlayapman',
+  },
+  'st.ready': {
+    en: 'Ready to apply',
+    uz: 'Topshirishga tayyor',
+  },
+  'st.started': {
+    en: 'Application started',
+    uz: 'Ariza boshlandi',
+  },
+  'st.submitted': {
+    en: 'Submitted',
+    uz: 'Topshirildi',
+  },
+  'st.awaiting': {
+    en: 'Awaiting decision',
+    uz: 'Qaror kutilmoqda',
+  },
+  'st.accepted': {
+    en: 'Accepted',
+    uz: 'Qabul qilindi',
+  },
+  'st.rejected': {
+    en: 'Not accepted',
+    uz: 'Qabul qilinmadi',
+  },
+  'st.withdrawn': {
+    en: 'Withdrawn',
+    uz: 'Qaytarib olindi',
+  },
+  'ty.government': {
+    en: 'Government scholarship',
+    uz: 'Davlat granti',
+  },
+  'ty.merit': {
+    en: 'Merit scholarship',
+    uz: 'Merit (a’lochilar) granti',
+  },
+  'ty.need': {
+    en: 'Need-based aid',
+    uz: 'Ehtiyojga asoslangan yordam',
+  },
+  'ty.waiver': {
+    en: 'Tuition fee waiver',
+    uz: 'To‘lovdan ozod qilish',
+  },
+  'ty.research': {
+    en: 'Research scholarship',
+    uz: 'Ilmiy grant',
+  },
+  'ty.exchange': {
+    en: 'Exchange / joint programme',
+    uz: 'Almashinuv / qo‘shma dastur',
+  },
+  'ty.foundation': {
+    en: 'Foundation scholarship',
+    uz: 'Jamg‘arma granti',
+  },
+  'fund.full': {
+    en: 'Fully funded (per source)',
+    uz: 'To‘liq moliyalashtirilgan (manbaga ko‘ra)',
+  },
+  'fund.partial': {
+    en: 'Partial funding',
+    uz: 'Qisman moliyalashtirish',
+  },
+  'fund.unknown': {
+    en: 'Coverage not verified',
+    uz: 'Qamrov tekshirilmagan',
+  },
+  'ft.full': {
+    en: 'Fully funded (tuition + living)',
+    uz: 'To‘liq (o‘qish + yashash)',
+  },
+  'ft.full_tuition': {
+    en: 'Full tuition only',
+    uz: 'Faqat to‘liq o‘qish to‘lovi',
+  },
+  'ft.partial_tuition': {
+    en: 'Partial tuition',
+    uz: 'Qisman o‘qish to‘lovi',
+  },
+  'ft.stipend': {
+    en: 'Living-cost stipend',
+    uz: 'Yashash uchun stipendiya',
+  },
+  'ft.need_based': {
+    en: 'Need-based aid',
+    uz: 'Ehtiyojga asoslangan yordam',
+  },
+  'ft.assistantship': {
+    en: 'Research / teaching assistantship',
+    uz: 'Ilmiy / o‘qituvchi assistentligi',
+  },
+  'ft.fee_waiver': {
+    en: 'Fee waiver',
+    uz: 'To‘lovdan ozod qilish',
+  },
+  'ft.loan': {
+    en: 'Education loan',
+    uz: 'Ta’lim krediti',
+  },
+  'm.demoBanner': {
+    en: 'Demo mode — fictional student data, stored only in this browser.',
+    uz: 'Namoyish rejimi — xayoliy talaba ma’lumotlari, faqat shu brauzerda saqlanadi.',
+  },
+  'm.localBanner': {
+    en: 'Local profile — saved only in this browser. Not a secure account.',
+    uz: 'Mahalliy profil — faqat shu brauzerda saqlanadi. Bu himoyalangan akkaunt emas.',
+  },
+  'm.approx': {
+    en: 'approx.',
+    uz: 'taxm.',
+  },
+  'm.perYear': {
+    en: '/ year',
+    uz: '/ yil',
+  },
+  'm.perSemester': {
+    en: '/ semester',
+    uz: '/ semestr',
+  },
+  'm.total': {
+    en: 'total',
+    uz: 'jami',
+  },
+  'm.notVerified': {
+    en: 'Not verified',
+    uz: 'Tekshirilmagan',
+  },
+  'm.unknown': {
+    en: 'Information unavailable',
+    uz: 'Ma’lumot yo‘q',
+  },
+  'm.estimate': {
+    en: 'Estimate',
+    uz: 'Taxmin',
+  },
+  'm.official': {
+    en: 'Official',
+    uz: 'Rasmiy',
+  },
+  'm.years': {
+    en: '{n} years',
+    uz: '{n} yil',
+  },
+  'm.year': {
+    en: '{n} year',
+    uz: '{n} yil',
+  },
+  'm.none': {
+    en: 'None',
+    uz: 'Yo‘q',
+  },
+  'm.yes': {
+    en: 'Yes',
+    uz: 'Ha',
+  },
+  'm.no': {
+    en: 'No',
+    uz: 'Yo‘q',
+  },
+  'm.partial': {
+    en: 'Partly',
+    uz: 'Qisman',
+  },
+  'm.optional': {
+    en: 'Optional',
+    uz: 'Ixtiyoriy',
+  },
+  'm.required': {
+    en: 'Required',
+    uz: 'Majburiy',
+  },
+  'm.all': {
+    en: 'All',
+    uz: 'Barchasi',
+  },
+  'm.any': {
+    en: 'Any',
+    uz: 'Farqi yo‘q',
+  },
+  'm.loading': {
+    en: 'Loading…',
+    uz: 'Yuklanmoqda…',
+  },
+  'm.thinking': {
+    en: 'Thinking…',
+    uz: 'O‘ylamoqda…',
+  },
+  'm.results': {
+    en: '{n} results',
+    uz: '{n} ta natija',
+  },
+});

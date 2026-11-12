@@ -1,0 +1,487 @@
+import React from 'react';
+import * as jsxRuntime from 'react/jsx-runtime';
+import { FileText, PenLine, SquareCheckBig } from 'lucide-react';
+import { Ps, he } from '../lib/catalog';
+import { useStore } from '../store/store';
+import { useI18n } from '../lib/derived';
+import { Badge, Button, Callout, Card, PageHeader, classNames } from '../components/ui';
+
+const Y = (e, a) => ({
+  en: e,
+  uz: a,
+});
+const Bh = [
+  {
+    key: 'transcript',
+    purpose: Y(
+      'A record of your subjects and grades. Admissions teams use it to judge your academic preparation.',
+      'Fanlaringiz va baholaringiz ro‘yxati. Qabul komissiyasi undan akademik tayyorgarligingizni baholash uchun foydalanadi.',
+    ),
+    when: Y(
+      'Almost every degree application. Some ask for the last two or three years; master’s applications ask for your full bachelor’s record.',
+      'Deyarli har bir ariza uchun. Ba’zilari oxirgi 2–3 yilni, magistratura esa butun bakalavriat baholarini so‘raydi.',
+    ),
+    steps: [
+      Y(
+        'Ask your school, lyceum or university registrar for an official transcript. In Uzbekistan this is usually issued with a stamp and signature.',
+        'Maktab, litsey yoki universitet o‘quv bo‘limidan rasmiy transkript so‘rang. O‘zbekistonda odatda muhr va imzo bilan beriladi.',
+      ),
+      Y(
+        'Check whether the institution wants a scan, a certified copy, or a sealed copy sent directly.',
+        'Muassasa skan, tasdiqlangan nusxa yoki to‘g‘ridan-to‘g‘ri yuborilgan muhrlangan nusxa so‘rashini tekshiring.',
+      ),
+      Y(
+        'If it is not in English (or the required language), find out whether a certified translation is needed.',
+        'Ingliz (yoki talab qilingan) tilida bo‘lmasa, tasdiqlangan tarjima kerakligini aniqlang.',
+      ),
+      Y('Keep a clear PDF scan of every page.', 'Har bir sahifaning aniq PDF skanini saqlang.'),
+    ],
+    mistakes: [
+      Y(
+        'Uploading an unofficial printout when an official copy is required.',
+        'Rasmiy nusxa kerak bo‘lganda norasmiy chop etilgan varaqni yuklash.',
+      ),
+      Y(
+        'Converting grades yourself into another scale. Report them as issued.',
+        'Baholarni o‘zingiz boshqa tizimga aylantirish. Ularni berilgan holida ko‘rsating.',
+      ),
+      Y(
+        'Leaving it until the last week — offices can take weeks.',
+        'Oxirgi haftaga qoldirish — idoralar haftalab vaqt olishi mumkin.',
+      ),
+    ],
+    official: Y(
+      'Follow each institution’s instructions on certification and translation. Requirements differ.',
+      'Tasdiqlash va tarjima bo‘yicha har bir muassasa ko‘rsatmasiga amal qiling. Talablar farq qiladi.',
+    ),
+    checklist: [
+      Y('Requested from registrar', 'O‘quv bo‘limidan so‘ralgan'),
+      Y('Received with stamp and signature', 'Muhr va imzo bilan olingan'),
+      Y('Translation checked / ordered', 'Tarjima tekshirilgan / buyurtma qilingan'),
+      Y('PDF scan saved', 'PDF skan saqlangan'),
+    ],
+  },
+  {
+    key: 'diploma',
+    purpose: Y(
+      'Proves you completed the qualification needed for entry, such as a school leaving certificate or bachelor’s diploma.',
+      'Kirish uchun zarur ma’lumotni (attestat yoki bakalavr diplomi) tugatganingizni isbotlaydi.',
+    ),
+    when: Y(
+      'Most applications. If you have not graduated yet, many accept a letter confirming expected graduation.',
+      'Ko‘pchilik arizalarda. Hali bitirmagan bo‘lsangiz, ko‘plari kutilayotgan bitiruv haqidagi ma’lumotnomani qabul qiladi.',
+    ),
+    steps: [
+      Y(
+        'Check whether your qualification is accepted for direct entry, or whether a foundation year is needed.',
+        'Ma’lumotingiz to‘g‘ridan-to‘g‘ri qabul uchun mos kelishini yoki tayyorlov yili kerakligini tekshiring.',
+      ),
+      Y(
+        'Prepare a copy and, if required, a certified translation.',
+        'Nusxa va kerak bo‘lsa tasdiqlangan tarjima tayyorlang.',
+      ),
+      Y(
+        'Some countries require recognition or an apostille. Look for this in the official instructions.',
+        'Ba’zi davlatlar tan olish yoki apostil talab qiladi. Buni rasmiy ko‘rsatmalarda qidiring.',
+      ),
+    ],
+    mistakes: [
+      Y(
+        'Assuming a lyceum certificate is accepted everywhere for direct entry.',
+        'Litsey attestati hamma joyda to‘g‘ridan-to‘g‘ri qabul uchun mos deb o‘ylash.',
+      ),
+      Y('Names spelled differently from the passport.', 'Ism pasportdagidan boshqacha yozilgan.'),
+    ],
+    official: Y(
+      'Recognition rules are set by the destination country or institution.',
+      'Tan olish qoidalarini qabul qiluvchi davlat yoki muassasa belgilaydi.',
+    ),
+    checklist: [
+      Y('Entry eligibility checked', 'Kirish huquqi tekshirilgan'),
+      Y('Copy prepared', 'Nusxa tayyorlangan'),
+      Y('Translation / apostille checked', 'Tarjima / apostil tekshirilgan'),
+    ],
+  },
+  {
+    key: 'language',
+    purpose: Y('Shows you can study in the language of instruction.', 'O‘qitish tilida o‘qiy olishingizni ko‘rsatadi.'),
+    when: Y(
+      'Most programmes taught in English or another foreign language. Some accept other evidence.',
+      'Ingliz yoki boshqa xorijiy tilda o‘qitiladigan ko‘p dasturlarda. Ba’zilari boshqa dalillarni ham qabul qiladi.',
+    ),
+    steps: [
+      Y(
+        'Find the accepted tests (IELTS, TOEFL, Duolingo, others) for each target. Do not assume they are the same.',
+        'Har bir maqsad uchun qabul qilinadigan testlarni (IELTS, TOEFL, Duolingo va boshqalar) toping. Ular bir xil deb o‘ylamang.',
+      ),
+      Y('Note the overall minimum and any component minimums.', 'Umumiy minimum va bo‘limlar minimumini yozib oling.'),
+      Y(
+        'Check how long scores stay valid (often up to two years, but confirm).',
+        'Natija qancha muddat amal qilishini tekshiring (ko‘pincha ikki yilgacha, lekin aniqlang).',
+      ),
+      Y('Book early so results arrive before the deadline.', 'Natija muddatgacha kelishi uchun oldindan yoziling.'),
+    ],
+    mistakes: [
+      Y(
+        'Meeting the overall score but missing a component minimum.',
+        'Umumiy ball yetarli, lekin bo‘lim minimumi yetmasligi.',
+      ),
+      Y('Booking too late for results to arrive.', 'Natija kelishi uchun juda kech yozilish.'),
+    ],
+    official: Y(
+      'Use the test provider’s official site for dates and the institution’s site for minimums.',
+      'Sanalar uchun test tashkilotining rasmiy saytidan, minimumlar uchun muassasa saytidan foydalaning.',
+    ),
+    checklist: [
+      Y('Accepted tests confirmed', 'Qabul qilinadigan testlar tasdiqlangan'),
+      Y('Minimums noted', 'Minimumlar yozib olingan'),
+      Y('Test booked / taken', 'Testga yozilgan / topshirilgan'),
+      Y('Score report ready', 'Natija hisoboti tayyor'),
+    ],
+  },
+  {
+    key: 'passport',
+    purpose: Y(
+      'Confirms your identity and nationality. Needed for applications, visas and travel.',
+      'Shaxsingiz va fuqaroligingizni tasdiqlaydi. Ariza, viza va safar uchun kerak.',
+    ),
+    when: Y('Many applications and every student visa.', 'Ko‘p arizalarda va har bir talaba vizasida.'),
+    steps: [
+      Y(
+        'Check the expiry date against your intended stay. Destinations often require validity beyond arrival.',
+        'Amal qilish muddatini rejalashtirilgan yashash muddati bilan solishtiring. Ko‘p davlatlar kelgandan keyin ham amal qilishini talab qiladi.',
+      ),
+      Y('Renew early if needed; it takes time.', 'Kerak bo‘lsa, oldindan yangilang; bu vaqt oladi.'),
+      Y(
+        'Use the exact Latin spelling of your name everywhere.',
+        'Ismingizning lotin yozuvini hamma joyda aynan bir xil ishlating.',
+      ),
+    ],
+    mistakes: [Y('Different spellings of your name across documents.', 'Hujjatlarda ismning turlicha yozilishi.')],
+    official: Y(
+      'Validity rules come from the destination’s official immigration authority.',
+      'Amal qilish qoidalari qabul qiluvchi davlatning rasmiy migratsiya organidan olinadi.',
+    ),
+    checklist: [
+      Y('Expiry date checked', 'Amal qilish muddati tekshirilgan'),
+      Y('Name spelling consistent', 'Ism yozilishi bir xil'),
+    ],
+  },
+  {
+    key: 'recommendation',
+    purpose: Y(
+      'Someone who knows your work describes your abilities and character with specific examples.',
+      'Ishingizni biladigan odam qobiliyat va fazilatlaringizni aniq misollar bilan ta’riflaydi.',
+    ),
+    when: Y(
+      'Many scholarships and most master’s programmes; some bachelor’s applications.',
+      'Ko‘p grantlar va aksar magistratura dasturlarida; ba’zi bakalavriat arizalarida.',
+    ),
+    steps: [
+      Y(
+        'Choose referees who know you well: a teacher, supervisor or employer.',
+        'Sizni yaxshi biladigan odamlarni tanlang: ustoz, rahbar yoki ish beruvchi.',
+      ),
+      Y(
+        'Ask politely, in person or by email, at least 4–6 weeks before the deadline.',
+        'Muddatdan kamida 4–6 hafta oldin, shaxsan yoki email orqali xushmuomalalik bilan so‘rang.',
+      ),
+      Y(
+        'Send your CV, the programme name, deadline, submission method and two or three things you hope they can mention.',
+        'CV, dastur nomi, muddat, topshirish usuli va ular tilga olishini istagan 2–3 jihatni yuboring.',
+      ),
+      Y(
+        'Check whether the referee must upload the letter themselves.',
+        'Tavsiyanomani tavsiya beruvchining o‘zi yuklashi kerakmi, tekshiring.',
+      ),
+      Y('Thank them and tell them the outcome.', 'Rahmat ayting va natijani bildiring.'),
+    ],
+    mistakes: [
+      Y('Writing the letter yourself for the referee to sign.', 'Xatni o‘zingiz yozib, imzolatish.'),
+      Y('Asking someone famous who does not know your work.', 'Ishingizni bilmaydigan mashhur odamdan so‘rash.'),
+      Y('Asking a week before the deadline.', 'Muddatdan bir hafta oldin so‘rash.'),
+    ],
+    official: Y(
+      'The number of letters and how they are submitted are set by each programme.',
+      'Xatlar soni va topshirish usulini har bir dastur belgilaydi.',
+    ),
+    checklist: [
+      Y('Referees chosen', 'Tavsiya beruvchilar tanlangan'),
+      Y('Request sent with materials', 'Materiallar bilan so‘rov yuborilgan'),
+      Y('Submission confirmed', 'Topshirilgani tasdiqlangan'),
+    ],
+  },
+  {
+    key: 'cv',
+    purpose: Y(
+      'A short, structured summary of your education, experience, skills and achievements.',
+      'Ta’lim, tajriba, ko‘nikma va yutuqlaringizning qisqa tuzilgan bayoni.',
+    ),
+    when: Y('Most master’s applications and many scholarships.', 'Ko‘p magistratura arizalari va grantlarda.'),
+    steps: [
+      Y(
+        'Sections: education, relevant projects, experience, achievements, skills, languages, volunteering.',
+        'Bo‘limlar: ta’lim, tegishli loyihalar, tajriba, yutuqlar, ko‘nikmalar, tillar, ko‘ngillilik.',
+      ),
+      Y(
+        'List the most recent items first, with month and year.',
+        'Eng so‘nggilarini birinchi, oy va yil bilan yozing.',
+      ),
+      Y(
+        'For each role, describe what you did and the result in one or two lines.',
+        'Har bir lavozim uchun nima qilganingiz va natijani 1–2 qatorda yozing.',
+      ),
+      Y('Keep it to one or two pages unless told otherwise.', 'Boshqacha aytilmagan bo‘lsa, 1–2 sahifadan oshirmang.'),
+    ],
+    mistakes: [
+      Y(
+        'Adding qualifications or achievements you do not have. Never do this.',
+        'Yo‘q malaka yoki yutuqlarni qo‘shish. Hech qachon bunday qilmang.',
+      ),
+      Y('Listing duties instead of what you achieved.', 'Natijalar o‘rniga majburiyatlarni sanab o‘tish.'),
+    ],
+    official: Y(
+      'Some scholarships provide their own CV template. Use it if they do.',
+      'Ba’zi grantlar o‘z CV shablonini beradi. Bo‘lsa, undan foydalaning.',
+    ),
+    checklist: [
+      Y('Draft written', 'Qoralama yozilgan'),
+      Y('Checked with CV review tool', 'CV tekshiruv vositasida ko‘rilgan'),
+      Y('Exported as PDF', 'PDF ga saqlangan'),
+    ],
+  },
+  {
+    key: 'statement',
+    purpose: Y(
+      'Explains in your own words why you want this programme and how your experience prepares you for it.',
+      'Nega shu dasturni xohlayotganingiz va tajribangiz sizni bunga qanday tayyorlaganini o‘z so‘zlaringiz bilan tushuntiradi.',
+    ),
+    when: Y(
+      'Most applications, under names like personal statement, motivation letter or study plan.',
+      'Ko‘p arizalarda — motivatsion xat, shaxsiy bayonot yoki o‘qish rejasi nomlari bilan.',
+    ),
+    steps: [
+      Y('Read the official prompt and word limit first.', 'Avval rasmiy savol va so‘z chegarasini o‘qing.'),
+      Y('Plan with real examples from your own experience.', 'O‘z tajribangizdan haqiqiy misollar bilan reja tuzing.'),
+      Y(
+        'Write, get feedback, revise. Use the Writing tutor.',
+        'Yozing, fikr oling, qayta ishlang. Yozish yordamchisidan foydalaning.',
+      ),
+      Y('Check the institution’s rules on AI use.', 'Muassasaning SI dan foydalanish qoidalarini tekshiring.'),
+    ],
+    mistakes: [
+      Y('One generic statement sent everywhere.', 'Hamma joyga yuborilgan bitta umumiy xat.'),
+      Y('Claims without examples.', 'Misolsiz da’volar.'),
+      Y('Exceeding the word limit.', 'So‘z chegarasidan oshish.'),
+    ],
+    official: Y(
+      'The prompt and limits come only from the official instructions.',
+      'Savol va chegaralar faqat rasmiy ko‘rsatmalardan olinadi.',
+    ),
+    checklist: [
+      Y('Prompt and limit noted', 'Savol va chegara yozilgan'),
+      Y('Planned with real examples', 'Haqiqiy misollar bilan rejalashtirilgan'),
+      Y('Draft reviewed', 'Qoralama ko‘rib chiqilgan'),
+      Y('Final version proofread', 'Yakuniy variant tekshirilgan'),
+    ],
+  },
+  {
+    key: 'financial',
+    purpose: Y(
+      'Shows you can pay costs not covered by a scholarship. Often needed for visas.',
+      'Grant qoplamaydigan xarajatlarni to‘lay olishingizni ko‘rsatadi. Ko‘pincha viza uchun kerak.',
+    ),
+    when: Y(
+      'Requirements differ by institution, scholarship and destination. There is no universal format.',
+      'Talablar muassasa, grant va davlatga qarab farq qiladi. Yagona format yo‘q.',
+    ),
+    steps: [
+      Y(
+        'Find the exact document type, amount and time period required.',
+        'Talab qilinadigan aniq hujjat turi, summa va muddatni toping.',
+      ),
+      Y(
+        'Check whether bank statements must be recent or held for a set period.',
+        'Bank ko‘chirmasi yaqin sanali yoki ma’lum muddat saqlangan bo‘lishi kerakligini tekshiring.',
+      ),
+      Y('Check whether a sponsor letter or translation is needed.', 'Homiy xati yoki tarjima kerakligini tekshiring.'),
+    ],
+    mistakes: [
+      Y(
+        'Using a generic template that the destination does not accept.',
+        'Davlat qabul qilmaydigan umumiy shablondan foydalanish.',
+      ),
+    ],
+    official: Y(
+      'Visa-related financial rules come only from the destination’s official authority.',
+      'Vizaga oid moliyaviy qoidalar faqat qabul qiluvchi davlatning rasmiy organidan olinadi.',
+    ),
+    checklist: [Y('Exact requirement found', 'Aniq talab topilgan'), Y('Documents gathered', 'Hujjatlar yig‘ilgan')],
+  },
+];
+const ay = 'edubridge:doc-checks';
+const ez = () => {
+  try {
+    return JSON.parse(localStorage.getItem(ay) ?? '{}');
+  } catch {
+    return {};
+  }
+};
+export function DocumentsPage() {
+  const { state: e, navigate: a } = useStore(),
+    { tx: t, p: n } = useI18n(),
+    [s, r] = React.useState('transcript'),
+    [o, u] = React.useState(ez);
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(ay, JSON.stringify(o));
+    } catch {}
+  }, [o]);
+  const l = Bh.find((d) => d.key === s),
+    c = (d) =>
+      [...new Set([...e.applications.map((h) => h.oppId), ...e.saved])]
+        .map((h) => he(h))
+        .filter((h) => h && h.documents.includes(d)),
+    p = c(s);
+  return (
+    <div>
+      <PageHeader
+        eyebrow={t('Document preparation centre', 'Hujjat tayyorlash markazi')}
+        title={t('Prepare your documents', 'Hujjatlaringizni tayyorlang')}
+        sub={t(
+          'What each document is, why it is asked for and how to prepare it. This is general guidance — always check the specific requirements of each application.',
+          'Har bir hujjat nima, nega so‘raladi va qanday tayyorlanadi. Bu umumiy yo‘riqnoma — har bir arizaning aniq talablarini doim tekshiring.',
+        )}
+      />
+      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <nav
+          aria-label={t('Documents', 'Hujjatlar')}
+          className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible"
+        >
+          {Bh.map((d) => {
+            const h = c(d.key).length;
+            return (
+              <button
+                type="button"
+                onClick={() => r(d.key)}
+                aria-current={s === d.key ? 'true' : void 0}
+                className={classNames(
+                  'flex shrink-0 items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-[14px] font-semibold',
+                  s === d.key ? 'bg-navy text-navy-ink' : 'bg-surface text-fg hover:bg-sunken lg:bg-transparent',
+                )}
+                key={d.key}
+              >
+                <span className="flex items-center gap-2">
+                  <FileText size={16} aria-hidden={!0} />
+                  {n(Ps[d.key])}
+                </span>
+                {h > 0 && (
+                  <span className="tabular rounded-full bg-teal-soft px-1.5 text-[11.5px] text-teal-ink">{h}</span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+        <div className="flex min-w-0 flex-col gap-4">
+          <Card className="p-5">
+            <h2 className="text-[20px] font-extrabold">{n(Ps[l.key])}</h2>
+            <p className="mt-2 text-[15px]">
+              <b>{t('Purpose.', 'Maqsadi.')}</b> {n(l.purpose)}
+            </p>
+            <p className="mt-2 text-[15px]">
+              <b>{t('When it is required.', 'Qachon talab qilinadi.')}</b> {n(l.when)}
+            </p>
+            <h3 className="mb-2 mt-5 font-bold">{t('How to prepare it', 'Qanday tayyorlash')}</h3>
+            <ol className="flex flex-col gap-2">
+              {l.steps.map((d, h) => (
+                <li className="flex gap-2.5 text-[14.5px]" key={h}>
+                  <span className="tabular grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sunken text-[12px] font-bold">
+                    {h + 1}
+                  </span>
+                  {n(d)}
+                </li>
+              ))}
+            </ol>
+            <h3 className="mb-2 mt-5 font-bold">{t('Common mistakes', 'Ko‘p uchraydigan xatolar')}</h3>
+            <ul className="flex list-disc flex-col gap-1 pl-5 text-[14.5px]">
+              {l.mistakes.map((d, h) => (
+                <li key={h}>{n(d)}</li>
+              ))}
+            </ul>
+            <div className="mt-5">
+              <Callout>{n(l.official)}</Callout>
+            </div>
+            {l.key === 'statement' && (
+              <Button className="mt-4" variant="primary" icon={<PenLine size={16} />} onClick={() => a('writing')}>
+                {t('Open the writing tutor', 'Yozish yordamchisini ochish')}
+              </Button>
+            )}
+            {l.key === 'cv' && (
+              <Button className="mt-4" icon={<SquareCheckBig size={16} />} onClick={() => a('writing', 'cv')}>
+                {t('Open CV review', 'CV tekshiruvini ochish')}
+              </Button>
+            )}
+          </Card>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="p-4">
+              <p className="mb-2 font-bold">{t('My checklist', 'Mening ro‘yxatim')}</p>
+              <ul className="flex flex-col gap-2">
+                {l.checklist.map((d, h) => {
+                  const m = `${l.key}:${h}`;
+                  return (
+                    <li key={m}>
+                      <label className="flex cursor-pointer items-start gap-2.5 text-[14px]">
+                        <input
+                          type="checkbox"
+                          className="mt-0.5 h-4 w-4 accent-[rgb(var(--teal))]"
+                          checked={!!o[m]}
+                          onChange={() =>
+                            u({
+                              ...o,
+                              [m]: !o[m],
+                            })
+                          }
+                        />
+                        <span className={classNames(o[m] && 'text-muted line-through')}>{n(d)}</span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Card>
+            <Card className="p-4">
+              <p className="mb-2 font-bold">{t('Your applications that list it', 'Buni so‘raydigan arizalaringiz')}</p>
+              {p.length === 0 ? (
+                <p className="text-[14px] text-muted">
+                  {t(
+                    'None of your saved opportunities list this document.',
+                    'Saqlangan imkoniyatlaringizdan hech biri bu hujjatni ko‘rsatmagan.',
+                  )}
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {p.map((d) => (
+                    <li className="flex flex-wrap items-center justify-between gap-2 text-[14px]" key={d.id}>
+                      <button
+                        type="button"
+                        className="text-left font-semibold hover:underline"
+                        onClick={() => a(d.kind === 'program' ? 'university' : 'scholarship', d.id)}
+                      >
+                        {d.kind === 'program' ? d.university : d.name}
+                      </button>
+                      <Badge tone={d.documentsVerified ? 'ok' : 'neutral'}>
+                        {d.documentsVerified
+                          ? t('Listed in record', 'Yozuvda ko‘rsatilgan')
+                          : t('General guidance', 'Umumiy yo‘riqnoma')}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

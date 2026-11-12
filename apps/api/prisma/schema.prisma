@@ -18,26 +18,6 @@ enum AuthProvider {
   google
 }
 
-enum CatalogueStatus {
-  draft
-  in_review
-  published
-  hidden
-}
-
-enum RevisionStatus {
-  draft
-  in_review
-  rejected
-  published
-  superseded
-}
-
-enum GrantKind {
-  national
-  other
-}
-
 enum ReminderStatus {
   pending
   sent
@@ -61,31 +41,22 @@ enum FindingStatus {
 // ---------------------------------------------------------------- identity
 
 model User {
-  id          String    @id @default(uuid()) @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   displayName String?
-  lang        String    @default("uz")
-  role        Role      @default(student)
-  suspendedAi Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  lang        String   @default("uz")
+  role        Role     @default(student)
+  suspendedAi Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  identities    AuthIdentity[]
-  sessions      Session[]
-  profile       Profile?
-  applications  Application[]
-  savedItems    SavedItem[]
-  customEvents  CustomEvent[]
-  budgets       Budget[]
-  chatThreads   ChatThread[]
-  advisorDocs   AdvisorDoc[]
-  interviews    Interview[]
-  growthPlan    GrowthPlan?
-  reminders     Reminder[]
-  settings      UserSettings?
-  telegramLink  TelegramLink?
-  linkCodes     TelegramLinkCode[]
-  calendarFeed  CalendarFeed?
-  aiUsage       AiUsage[]
+  identities   AuthIdentity[]
+  sessions     Session[]
+  stateDocs    StateDoc[]
+  reminders    Reminder[]
+  telegramLink TelegramLink?
+  linkCodes    TelegramLinkCode[]
+  calendarFeed CalendarFeed?
+  aiUsage      AiUsage[]
 }
 
 model AuthIdentity {
@@ -115,159 +86,44 @@ model Session {
   @@index([userId])
 }
 
-// ------------------------------------------------- private student data
-// jsonb shapes mirror the frontend types so localStorage -> server is a straight copy.
+// ------------------------------------------------- the student's app state
+// The web app keeps one state object. The server stores it as five documents (core, profile, plans, writing, ai) plus
+// the derived calendar the app computes for reminders. Each has a version for optimistic concurrency.
 
-model Profile {
-  userId    String   @id @db.Uuid
-  data      Json
-  version   Int      @default(1)
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Application {
-  id        String   @id @default(uuid()) @db.Uuid
+model StateDoc {
   userId    String   @db.Uuid
-  opportunityRef String
-  data      Json
-  version   Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  /** id the record had in the guest's browser; makes import-local idempotent */
-  localId String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, localId])
-  @@index([userId])
-}
-
-model SavedItem {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @db.Uuid
-  kind   String
-  ref    String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, kind, ref])
-}
-
-model CustomEvent {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  data      Json
-  version   Int      @default(1)
-  updatedAt DateTime @updatedAt
-  /** id the record had in the guest's browser; makes import-local idempotent */
-  localId String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, localId])
-  @@index([userId])
-}
-
-model Budget {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  data      Json
-  version   Int      @default(1)
-  updatedAt DateTime @updatedAt
-  /** id the record had in the guest's browser; makes import-local idempotent */
-  localId String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, localId])
-  @@index([userId])
-}
-
-model ChatThread {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  title     String
-  data      Json
-  version   Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  /** id the record had in the guest's browser; makes import-local idempotent */
-  localId String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, localId])
-  @@index([userId])
-}
-
-// Text only: the uploaded file itself is never stored.
-model AdvisorDoc {
-  id           String   @id @default(uuid()) @db.Uuid
-  userId       String   @db.Uuid
-  kind         String
-  title        String
-  originalText String
-  workingText  String
-  analysis     Json?
-  history      Json?
-  version      Int      @default(1)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  /** id the record had in the guest's browser; makes import-local idempotent */
-  localId String?
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, localId])
-  @@index([userId])
-}
-
-model Interview {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  data      Json
-  version   Int      @default(1)
-  updatedAt DateTime @updatedAt
-  /** id the record had in the guest's browser; makes import-local idempotent */
-  localId String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, localId])
-  @@index([userId])
-}
-
-model GrowthPlan {
-  userId    String   @id @db.Uuid
+  key       String
   data      Json
   version   Int      @default(1)
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, key])
 }
 
-model UserSettings {
-  userId    String   @id @db.Uuid
-  data      Json
-  version   Int      @default(1)
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+// ----------------------------------------------------------- reminders
 
 model Reminder {
-  id        String         @id @default(uuid()) @db.Uuid
-  userId    String         @db.Uuid
-  kind      String
-  ref       String
-  dueAt     DateTime
-  channel   String         @default("telegram")
-  status    ReminderStatus @default(pending)
-  sentAt    DateTime?
-  createdAt DateTime       @default(now())
-  /** delivery attempts so far and when the next one may run (backoff / short lease while sending) */
-  attempts      Int       @default(0)
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String         @db.Uuid
+  /// the calendar item it is about (the app's own event id) and the date it is for
+  ref           String
+  itemDate      String
+  title         Json
+  dueAt         DateTime
+  status        ReminderStatus @default(pending)
+  sentAt        DateTime?
+  createdAt     DateTime       @default(now())
+  attempts      Int            @default(0)
   nextAttemptAt DateTime?
   lastError     String?
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, kind, ref, dueAt])
+  @@unique([userId, ref, dueAt])
   @@index([status, dueAt])
 }
 
-/** One-time code that links a Telegram chat to an account (10 minutes). Only a hash is stored. */
+/// One-time code that links a Telegram chat to an account (10 minutes). Only a hash is stored.
 model TelegramLinkCode {
   id        String    @id @default(uuid()) @db.Uuid
   userId    String    @db.Uuid
@@ -279,7 +135,7 @@ model TelegramLinkCode {
   @@index([userId])
 }
 
-/** Revocable secret URL for the calendar feed. Only a hash of the token is stored. */
+/// Revocable secret URL for the calendar feed. Only a hash of the token is stored.
 model CalendarFeed {
   userId    String   @id @db.Uuid
   tokenHash String   @unique
@@ -296,130 +152,75 @@ model TelegramLink {
 }
 
 // ----------------------------------------------------------- catalogue
-// Rows hold the PUBLISHED version. Every change goes through CatalogueRevision.
+// The app's reference data (universities, scholarships, programmes). Each dataset is one JSON document that the
+// editors change record by record; every change is written to AuditLog and bumps the version.
 
-model Country {
-  code      String   @id
-  position  Int
+model CatalogDataset {
+  name      String   @id
   data      Json
   updatedAt DateTime @updatedAt
-
-  universities University[]
 }
 
-model University {
-  id          String          @id
-  countryCode String
-  position    Int
-  tier        String
-  name        String
-  short       String?
-  city        String?
-  type        String?
-  website     String?
-  status      CatalogueStatus @default(published)
-  version     Int             @default(1)
-  lastChecked String?
-  /** everything else of the university record (campus, subjects, languages, ranking, fee, scholarships, ...) */
-  data        Json
-  updatedAt   DateTime        @updatedAt
-
-  country Country           @relation(fields: [countryCode], references: [code])
-  levels  UniversityLevel[]
-
-  @@index([countryCode, position])
-}
-
-model UniversityLevel {
-  id           String     @id @default(uuid()) @db.Uuid
-  universityId String
-  level        String
-  data         Json
-  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
-
-  @@unique([universityId, level])
-}
-
-model Grant {
-  id          String          @id
-  kind        GrantKind
-  name        String
-  country     String
-  status      CatalogueStatus @default(published)
-  version     Int             @default(1)
-  position    Int             @default(0)
-  checked     String?
-  data        Json
-  updatedAt   DateTime        @updatedAt
-}
-
-model CatalogueRevision {
-  id          String          @id @default(uuid()) @db.Uuid
-  entityType  String
-  entityId    String
-  version     Int
-  data        Json
-  status      RevisionStatus  @default(draft)
-  authorId    String?         @db.Uuid
-  reviewedBy  String?         @db.Uuid
-  reviewedAt  DateTime?
-  comment     String?
-  createdAt   DateTime        @default(now())
-
-  @@index([entityType, entityId])
-  @@index([status])
-}
-
-/** Review marks that do not change what students see (replaces the browser-only "reviewed" override). */
-model CatalogueMark {
-  entityType String
-  entityId   String
-  reviewedAt DateTime?
-  reviewedBy String?   @db.Uuid
-  note       String?
-  updatedAt  DateTime  @updatedAt
-
-  @@id([entityType, entityId])
-}
-
-model CatalogueMeta {
+model CatalogMeta {
   id        Int      @id
   version   Int      @default(1)
   updatedAt DateTime @updatedAt
 }
 
 model Source {
-  id                String    @id @default(uuid()) @db.Uuid
-  url               String
-  kind              String
-  entityType        String
-  entityId          String
-  field             String
-  lastCheckedAt     DateTime?
-  lastStatus        String?
-  lastHash          String?
-  httpStatus        Int?
-  blocksAutomation  Boolean   @default(false)
-  /** where the link ended up after redirects, and the readable text of the last good fetch (capped), used for a short diff */
-  finalUrl          String?
-  lastText          String?
+  id               String    @id @default(uuid()) @db.Uuid
+  url              String
+  dataset          String
+  recordId         String
+  field            String
+  lastCheckedAt    DateTime?
+  lastStatus       String?
+  lastHash         String?
+  httpStatus       Int?
+  blocksAutomation Boolean   @default(false)
+  finalUrl         String?
+  lastText         String?
 
   findings RecheckFinding[]
 
-  @@unique([entityType, entityId, field, url])
+  @@unique([dataset, recordId, field, url])
   @@index([url])
 }
 
-model DemoSnapshot {
-  id        String   @id @default(uuid()) @db.Uuid
-  kind      String
-  title     String
-  payload   Json
-  /** true when it was saved while the AI was in mock mode: shown as a sample, never as a live result */
-  mock      Boolean  @default(false)
-  lang      String?
-  savedAt   DateTime @default(now())
-  savedBy   String?  @db.Uuid
+model RecheckRun {
+  id          String    @id @default(uuid()) @db.Uuid
+  /// queued (waiting for the worker) | running | done | failed
+  status      String    @default("queued")
+  trigger     String    @default("schedule")
+  requestedBy String?   @db.Uuid
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  summary     Json?
+
+  findings RecheckFinding[]
+}
+
+model RecheckFinding {
+  id            String        @id @default(uuid()) @db.Uuid
+  runId         String        @db.Uuid
+  sourceId      String        @db.Uuid
+  kind          FindingKind
+  oldHash       String?
+  newHash       String?
+  diffSnippet   String?
+  prevCheckedAt DateTime?
+  httpStatus    Int?
+  finalUrl      String?
+  note          String?
+  status        FindingStatus @default(open)
+  reviewedBy    String?       @db.Uuid
+  reviewedAt    DateTime?
+
+  run    RecheckRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  source Source     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([status])
 }
 
 // ---------------------------------------------------------- operations
@@ -453,41 +254,4 @@ model AuditLog {
 
   @@index([entityType, entityId])
   @@index([createdAt])
-}
-
-model RecheckRun {
-  id         String    @id @default(uuid()) @db.Uuid
-  /** queued (waiting for the worker) | running | done | failed */
-  status     String    @default("queued")
-  trigger    String    @default("schedule")
-  requestedBy String?  @db.Uuid
-  createdAt  DateTime  @default(now())
-  startedAt  DateTime?
-  finishedAt DateTime?
-  summary    Json?
-
-  findings RecheckFinding[]
-}
-
-model RecheckFinding {
-  id         String        @id @default(uuid()) @db.Uuid
-  runId      String        @db.Uuid
-  sourceId   String        @db.Uuid
-  kind       FindingKind
-  oldHash    String?
-  newHash    String?
-  diffSnippet String?
-  /** when this link was last checked before this run, and what the fetch said now */
-  prevCheckedAt DateTime?
-  httpStatus Int?
-  finalUrl   String?
-  note       String?
-  status     FindingStatus @default(open)
-  reviewedBy String?       @db.Uuid
-  reviewedAt DateTime?
-
-  run    RecheckRun @relation(fields: [runId], references: [id], onDelete: Cascade)
-  source Source     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-
-  @@index([status])
 }

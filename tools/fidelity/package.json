@@ -1,0 +1,9 @@
+{
+  "name": "@edubridge/fidelity",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Pixel comparison between the original HTML artifact and the rebuilt web app",
+  "scripts": { "compare": "node compare.mjs" },
+  "devDependencies": { "@playwright/test": "1.49.1", "pixelmatch": "^6.0.0", "pngjs": "^7.0.0" }
+}

@@ -1,33 +1,32 @@
 {
   "name": "edubridge",
   "private": true,
-  "version": "0.1.0",
+  "version": "3.0.0",
   "type": "module",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "tools/*"
   ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
+    "dev:web": "npm run dev -w @edubridge/web",
+    "dev:api": "npm run dev -w @edubridge/api",
     "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "db:up": "docker compose up -d postgres",
     "db:migrate": "npm run db:migrate -w @edubridge/api",
     "db:import": "npm run db:import -w @edubridge/api",
-    "dev:api": "npm run dev -w @edubridge/api"
+    "worker": "npm run worker -w @edubridge/api",
+    "e2e": "npm run e2e -w @edubridge/web",
+    "fidelity": "npm run build -w @edubridge/web && npm run compare -w @edubridge/fidelity"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "deepmerge-ts": "^8.0.2",
-    "prettier": "^3.4.2",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
     "vitest": "^2.1.8"
-  },
-  "overrides": {
-    "deepmerge-ts": "$deepmerge-ts"
   }
 }

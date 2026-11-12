@@ -1,140 +1,128 @@
-import { createHash } from 'node:crypto';
-import { gzipSync } from 'node:zlib';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { COUNTRY_CODES, LEVELS, TIERS, searchUniversities } from '@edubridge/shared';
-import type { CatalogRepo } from '../lib/catalogRepo';
-import { badRequest, notFound } from '../errors';
+import type { Config } from '../config';
+import { ApiError, badRequest, notFound } from '../errors';
+import { requireRole } from '../auth/roles';
+import { hashIp } from '../auth/session';
+import { CatalogStore, isDataset, keyOf, type DatasetName } from '../lib/catalogStore';
 
-const boolQ = z.enum(['true', 'false', '1', '0']).transform((v) => v === 'true' || v === '1');
+type Rec = Record<string, unknown>;
+const isObj = (x: unknown): x is Rec => !!x && typeof x === 'object' && !Array.isArray(x);
+const title = (r: unknown): string => (isObj(r) ? String((typeof r.name === 'string' ? r.name : isObj(r.name) ? (r.name as Rec).en : r.title ?? r.id ?? '') ?? '') : String(r));
 
-const searchQuery = z.object({
-  q: z.string().max(100).optional(),
-  country: z.enum(COUNTRY_CODES).optional(),
-  tier: z.enum(TIERS).optional(),
-  level: z.enum(LEVELS).optional(),
-  subject: z.string().max(40).optional(),
-  language: z.string().max(40).optional(),
-  funding: boolQ.optional(),
-  confirmedDeadline: boolQ.optional(),
-  confirmedFee: boolQ.optional(),
-  ielts: z.coerce.number().min(0).max(9).optional(),
-});
-
-type Cached = { body: string; etag: string; gzip: Buffer };
-
-/**
- * The catalogue changes a few times a month and is read all day, so each distinct answer is built, hashed and
- * compressed once per catalogue version and then served from memory. (Under 200 concurrent first-time visitors
- * this took the full list from ~260 to thousands of requests per second.)
- */
-class ResponseCache {
-  private map = new Map<string, Cached>();
-  private version = -1;
-  private static readonly MAX = 300;
-
-  get(version: number, key: string, build: () => unknown): Cached {
-    if (version !== this.version) {
-      this.map.clear();
-      this.version = version;
-    }
-    let hit = this.map.get(key);
-    if (!hit) {
-      const body = JSON.stringify(build());
-      hit = {
-        body,
-        etag: `W/"v${version}-${createHash('sha1').update(body).digest('base64url').slice(0, 16)}"`,
-        gzip: gzipSync(body, { level: 6 }),
-      };
-      if (this.map.size >= ResponseCache.MAX) this.map.clear(); // distinct filter combinations are bounded by the schema; this is a backstop
-      this.map.set(key, hit);
-    }
-    return hit;
-  }
+/** A short diff for the audit log: which top-level fields changed. */
+function changed(before: unknown, after: unknown): Record<string, { before: unknown; after: unknown }> {
+  const out: Record<string, { before: unknown; after: unknown }> = {};
+  const b = isObj(before) ? before : {};
+  const a = isObj(after) ? after : {};
+  for (const k of new Set([...Object.keys(b), ...Object.keys(a)])) if (JSON.stringify(b[k]) !== JSON.stringify(a[k])) out[k] = { before: b[k] ?? null, after: a[k] ?? null };
+  return out;
 }
 
-export function registerCatalogRoutes(app: FastifyInstance, repo: CatalogRepo) {
-  const cache = new ResponseCache();
+export function registerCatalogRoutes(app: FastifyInstance, d: { config: Config; prisma: PrismaClient; store: CatalogStore; secret: string }) {
+  const { config, store } = d;
 
-  /** Sends a cached JSON answer with a weak ETag; answers 304 when the client already has it. */
-  function send(req: FastifyRequest, reply: FastifyReply, version: number, build: () => unknown) {
-    const c = cache.get(version, req.url, build);
-    reply.header('etag', c.etag).header('cache-control', 'public, max-age=60, must-revalidate').header('vary', 'Accept-Encoding').type('application/json');
-    if (req.headers['if-none-match'] === c.etag) return reply.code(304).send();
-    if (String(req.headers['accept-encoding'] ?? '').includes('gzip')) return reply.header('content-encoding', 'gzip').send(c.gzip);
-    return reply.send(c.body);
-  }
+  // ---- public: the app loads this once at start -------------------------------------------------
+  app.get('/catalog', async (req, reply) => {
+    const version = await store.version();
+    if (version < 1) throw new ApiError(503, 'catalog_empty', 'The catalogue has not been imported yet.');
+    const etag = `"catalog-${version}"`;
+    reply.header('etag', etag).header('cache-control', 'public, max-age=60, must-revalidate');
+    if (req.headers['if-none-match'] === etag) return reply.status(304).send();
+    return store.publicCatalog();
+  });
+  app.get('/catalog/version', async () => ({ version: await store.version() }));
 
-  app.get('/catalog/version', async (_req, reply) => {
-    reply.header('cache-control', 'no-cache');
-    return { version: await repo.version() };
+  // ---- staff: read and edit records --------------------------------------------------------------
+  app.get('/admin/catalog', async (req) => {
+    requireRole(req, config, ['editor', 'admin']);
+    const raw = await store.raw();
+    return { version: await store.version(), datasets: Object.entries(raw).map(([name, data]) => ({ name, kind: Array.isArray(data) ? 'records' : 'value', count: Array.isArray(data) ? data.length : null })) };
   });
 
-  app.get('/catalog/countries', async (req, reply) => {
-    const s = await repo.snapshot();
-    return send(req, reply, s.version, () => ({
-      version: s.version,
-      items: s.countries.map((c) => ({ ...c, universityCount: s.universities.filter((u) => u.country === c.code).length })),
-    }));
+  app.get<{ Params: { name: string }; Querystring: { q?: string } }>('/admin/catalog/:name', async (req) => {
+    requireRole(req, config, ['editor', 'admin']);
+    if (!isDataset(req.params.name)) throw notFound('dataset');
+    const data = await store.dataset(req.params.name);
+    if (!Array.isArray(data)) return { name: req.params.name, kind: 'value', value: data };
+    const q = (req.query.q ?? '').toLowerCase();
+    const items = data
+      .map((r, i) => ({ key: keyOf(r, i), title: title(r), hidden: isObj(r) && r.hidden === true }))
+      .filter((r) => !q || r.title.toLowerCase().includes(q) || r.key.toLowerCase().includes(q));
+    return { name: req.params.name, kind: 'records', count: data.length, items };
   });
 
-  app.get<{ Params: { code: string } }>('/catalog/countries/:code', async (req, reply) => {
-    const code = req.params.code.toUpperCase();
-    if (!(COUNTRY_CODES as readonly string[]).includes(code)) throw notFound('Country');
-    const s = await repo.snapshot();
-    const country = s.countries.find((c) => c.code === code);
-    if (!country) throw notFound('Country');
-    return send(req, reply, s.version, () => ({
-      version: s.version,
-      country,
-      universities: s.universities.filter((u) => u.country === code),
-      grants: s.grants.filter((g) => g.country === code),
-    }));
+  app.get<{ Params: { name: string; key: string } }>('/admin/catalog/:name/:key', async (req) => {
+    requireRole(req, config, ['editor', 'admin']);
+    const { name, key } = req.params;
+    if (!isDataset(name)) throw notFound('dataset');
+    const data = await store.dataset(name);
+    if (!Array.isArray(data)) throw badRequest('This dataset is a single value; use PUT /admin/catalog/:name.');
+    const i = data.findIndex((r, idx) => keyOf(r, idx) === key);
+    if (i < 0) throw notFound('record');
+    return { name, key, record: data[i] };
   });
 
-  app.get('/catalog/universities', async (req, reply) => {
-    const parsed = searchQuery.safeParse(req.query);
-    if (!parsed.success) throw badRequest('Invalid query', parsed.error.flatten().fieldErrors);
-    const s = await repo.snapshot();
-    return send(req, reply, s.version, () => {
-      const countriesWithGrant = new Set(s.grants.filter((g) => g.kind === 'national').map((g) => g.country));
-      const hits = searchUniversities(s.universities, parsed.data, countriesWithGrant);
-      return { version: s.version, count: hits.length, items: hits.map((h) => (h.ieltsStatus ? { ...h.university, ieltsStatus: h.ieltsStatus } : h.university)) };
-    });
+  const recordBody = z.object({ record: z.record(z.string(), z.unknown()).refine((o) => JSON.stringify(o).length <= 500_000, 'record too large') }).strict();
+
+  app.put<{ Params: { name: string; key: string } }>('/admin/catalog/:name/:key', async (req) => {
+    const auth = requireRole(req, config, ['editor', 'admin']);
+    const { name, key } = req.params;
+    if (!isDataset(name)) throw notFound('dataset');
+    const { record } = recordBody.parse(req.body);
+    const data = await store.dataset(name);
+    if (!Array.isArray(data)) throw badRequest('This dataset is a single value; use PUT /admin/catalog/:name.');
+    const i = data.findIndex((r, idx) => keyOf(r, idx) === key);
+    if (i < 0) throw notFound('record');
+    const next = [...data];
+    next[i] = record;
+    const version = await store.write(name, next, { actorId: auth.user.id, action: 'record.update', entityId: key, diff: changed(data[i], record), ipHash: hashIp(req.ip, d.secret) });
+    return { version };
   });
 
-  app.get<{ Params: { id: string } }>('/catalog/universities/:id', async (req, reply) => {
-    const s = await repo.snapshot();
-    const u = s.universities.find((x) => x.id === req.params.id);
-    if (!u) throw notFound('University');
-    return send(req, reply, s.version, () => ({ version: s.version, university: u }));
+  app.post<{ Params: { name: string } }>('/admin/catalog/:name', async (req, reply) => {
+    const auth = requireRole(req, config, ['admin']);
+    const name = req.params.name as DatasetName;
+    if (!isDataset(name)) throw notFound('dataset');
+    const { record } = recordBody.parse(req.body);
+    const data = await store.dataset(name);
+    if (!Array.isArray(data)) throw badRequest('This dataset is a single value.');
+    const k = keyOf(record, data.length);
+    if (data.some((r, idx) => keyOf(r, idx) === k)) throw new ApiError(409, 'exists', 'A record with this id already exists.');
+    const version = await store.write(name, [...data, record], { actorId: auth.user.id, action: 'record.create', entityId: k, diff: record, ipHash: hashIp(req.ip, d.secret) });
+    return reply.status(201).send({ version, key: k });
   });
 
-  app.get('/catalog/compare', async (req, reply) => {
-    const q = z.object({ ids: z.string().min(1), level: z.enum(LEVELS) }).safeParse(req.query);
-    if (!q.success) throw badRequest('ids and level are required', q.error.flatten().fieldErrors);
-    const ids = [...new Set(q.data.ids.split(',').map((x) => x.trim()).filter(Boolean))];
-    if (ids.length < 2 || ids.length > 3) throw badRequest('Compare needs 2 or 3 distinct universities');
-    const s = await repo.snapshot();
-    const items = ids.map((id) => s.universities.find((u) => u.id === id));
-    if (items.some((x) => !x)) throw notFound('University');
-    return send(req, reply, s.version, () => ({ version: s.version, level: q.data.level, items: items.map((u) => ({ ...u!, level: u!.levels[q.data.level] ?? null })) }));
+  app.delete<{ Params: { name: string; key: string } }>('/admin/catalog/:name/:key', async (req) => {
+    const auth = requireRole(req, config, ['admin']);
+    const { name, key } = req.params;
+    if (!isDataset(name)) throw notFound('dataset');
+    const data = await store.dataset(name);
+    if (!Array.isArray(data)) throw badRequest('This dataset is a single value.');
+    const i = data.findIndex((r, idx) => keyOf(r, idx) === key);
+    if (i < 0) throw notFound('record');
+    const version = await store.write(name, data.filter((_, idx) => idx !== i), { actorId: auth.user.id, action: 'record.delete', entityId: key, diff: data[i], ipHash: hashIp(req.ip, d.secret) });
+    return { version };
   });
 
-  app.get('/catalog/grants', async (req, reply) => {
-    const q = z.object({ kind: z.enum(['national', 'other']).optional(), country: z.string().max(3).optional() }).safeParse(req.query);
-    if (!q.success) throw badRequest('Invalid query', q.error.flatten().fieldErrors);
-    const s = await repo.snapshot();
-    return send(req, reply, s.version, () => {
-      const items = s.grants.filter((g) => (!q.data.kind || g.kind === q.data.kind) && (!q.data.country || g.country === q.data.country.toUpperCase()));
-      return { version: s.version, count: items.length, items };
-    });
+  // single-value datasets (the "checked on" date, the country texts): admins only
+  app.put<{ Params: { name: string } }>('/admin/catalog/:name', async (req) => {
+    // editors may mark records inactive or reviewed (the "overrides" value); the other single values are admin-only
+    const auth = requireRole(req, config, req.params.name === 'overrides' ? ['editor', 'admin'] : ['admin']);
+    const name = req.params.name as DatasetName;
+    if (!isDataset(name)) throw notFound('dataset');
+    const { value } = z.object({ value: z.unknown() }).strict().parse(req.body);
+    const data = await store.dataset(name);
+    if (Array.isArray(data)) throw badRequest('This dataset holds records; edit them one by one.');
+    const version = await store.write(name, value, { actorId: auth.user.id, action: 'value.update', entityId: name, diff: { before: data, after: value }, ipHash: hashIp(req.ip, d.secret) });
+    return { version };
   });
 
-  app.get<{ Params: { id: string } }>('/catalog/grants/:id', async (req, reply) => {
-    const s = await repo.snapshot();
-    const g = s.grants.find((x) => x.id === req.params.id);
-    if (!g) throw notFound('Grant');
-    return send(req, reply, s.version, () => ({ version: s.version, grant: g }));
+  app.get<{ Querystring: { limit?: string } }>('/admin/audit', async (req) => {
+    requireRole(req, config, ['editor', 'admin']);
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50));
+    const items = await d.prisma.auditLog.findMany({ orderBy: { createdAt: 'desc' }, take: limit });
+    return { items };
   });
 }
