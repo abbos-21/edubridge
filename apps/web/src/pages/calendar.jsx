@@ -424,8 +424,8 @@ export function CalendarPage() {
         </p>
         <p className="mt-1 text-[13.5px] text-muted">
           {c(
-            'Choose when in-app reminders appear. This prototype does not send emails, SMS or push notifications.',
-            'Ilova ichidagi eslatmalar qachon chiqishini tanlang. Ushbu prototip email, SMS yoki push-xabar yubormaydi.',
+            'Choose when in-app reminders appear. Telegram reminders can be switched on in Settings. No emails or SMS are sent.',
+            'Ilova ichidagi eslatmalar qachon chiqishini tanlang. Telegram eslatmalarini Sozlamalarda yoqish mumkin. Email yoki SMS yuborilmaydi.',
           )}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">

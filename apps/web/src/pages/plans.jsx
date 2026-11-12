@@ -746,8 +746,8 @@ export function PlanPage({ id: e }) {
                             )}
                             <p className="mt-1 text-[11.5px] text-faint">
                               {d(
-                                'Prototype: only the file name is recorded. Nothing is uploaded.',
-                                'Prototip: faqat fayl nomi yoziladi. Hech narsa yuklanmaydi.',
+                                'Only the file name is recorded. Nothing is uploaded.',
+                                'Faqat fayl nomi yoziladi. Hech narsa yuklanmaydi.',
                               )}
                             </p>
                           </div>

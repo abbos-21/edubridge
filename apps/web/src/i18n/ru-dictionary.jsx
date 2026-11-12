@@ -346,6 +346,10 @@ const dj = 'Условия';
 const cj = 'Пробел';
 const hj = 'Покрывается';
 const mj = {
+  'Live AI:': 'Живой ИИ:',
+  'Not available right now': 'Сейчас недоступно',
+  'Sign in to use live AI': 'Войдите, чтобы пользоваться живым ИИ',
+  'Available': 'Доступно',
   'This page uses your student profile': 'На этой странице используется ваш профиль студента',
   'Create a profile (about 5 minutes) or try a fictional demo student.':
     'Создайте профиль (около 5 минут) или попробуйте вымышленного демо-студента.',
@@ -357,8 +361,8 @@ const mj = {
     'Инструменты проверки данных доступны только владельцу этой страницы EduBridge.',
   English: _b,
   EN: $b,
-  'A prototype guidance tool for students from Uzbekistan. Always confirm requirements on official websites.':
-    'Прототип инструмента для студентов из Узбекистана. Всегда проверяйте требования на официальных сайтах.',
+  'A guidance tool for students from Uzbekistan. Always confirm requirements on official websites.':
+    'Инструмент для студентов из Узбекистана. Всегда проверяйте требования на официальных сайтах.',
   'No reminders right now. Reminders appear here as deadlines approach.':
     'Сейчас напоминаний нет. Они появятся здесь по мере приближения дедлайнов.',
   'In-app reminders only. No emails, SMS or push notifications are sent.':
@@ -2732,8 +2736,8 @@ const mj = {
   '{0} plan(s) have no confirmed deadline and do not appear on the calendar: ':
     'Планов без подтверждённого дедлайна (их нет в календаре): {0} — ',
   'Reminder settings': 'Настройки напоминаний',
-  'Choose when in-app reminders appear. This prototype does not send emails, SMS or push notifications.':
-    'Выберите, когда появляются напоминания в приложении. Этот прототип не отправляет письма, SMS или push-уведомления.',
+  'Choose when in-app reminders appear. Telegram reminders can be switched on in Settings. No emails or SMS are sent.':
+    'Выберите, когда появляются напоминания в приложении. Напоминания в Telegram включаются в Настройках. Письма и SMS не отправляются.',
   'Reminders: {0}': 'Напоминания: {0}',
   '{0} day{1} before': 'за {0} дн.',
   'Edit date': 'Изменить дату',
@@ -2896,9 +2900,9 @@ const mj = {
   'Database and source review': 'Проверка базы и источников',
   'Every university and scholarship record, where it came from, and what is still missing.':
     'Все записи университетов и стипендий, откуда они взяты и чего ещё не хватает.',
-  'Prototype — no admin login.': 'Прототип — входа для администратора нет.',
-  'Hiding or marking a record here only changes what this browser shows. A real deployment must put these tools behind authenticated staff accounts on a server.':
-    'Скрытие или отметка записи здесь меняет только то, что показывает этот браузер. В реальном развёртывании эти инструменты должны быть на сервере за аккаунтами сотрудников с аутентификацией.',
+  'Staff tools.': 'Инструменты для сотрудников.',
+  'Hiding a record or marking it reviewed is saved on the server and changes what every student sees. Every change is logged.':
+    'Скрытие записи или отметка «проверено» сохраняется на сервере и меняет то, что видят все студенты. Каждое изменение записывается в журнал.',
   '{0} countries': 'Стран: {0}',
   'Fully verified': 'Полностью проверено',
   'rest are partly verified': 'остальные проверены частично',
@@ -3024,20 +3028,20 @@ const mj = {
   'No promises here: a good IELTS alone is not enough, a grant is never certain, and meeting a minimum does not guarantee admission. A high language score does not replace missing subjects or credits.':
     'Никаких обещаний: хорошего IELTS одного недостаточно, грант никогда не гарантирован, а выполнение минимума не гарантирует поступления. Высокий языковой балл не заменяет недостающих предметов или кредитов.',
   'About EduBridge': 'О EduBridge',
-  'EduBridge is a hackathon prototype that helps students from Uzbekistan plan applications to universities and scholarships abroad.':
-    'EduBridge — прототип для хакатона, который помогает студентам из Узбекистана планировать подачу в зарубежные университеты и на стипендии.',
+  'EduBridge helps students from Uzbekistan plan applications to universities and scholarships abroad.':
+    'EduBridge помогает студентам из Узбекистана планировать поступление в зарубежные университеты и на гранты.',
   'It teaches students how to navigate the process — finding options, checking published requirements, preparing documents and tracking deadlines — rather than doing the work for them.':
     'Он учит студентов ориентироваться в процессе — находить варианты, проверять опубликованные требования, готовить документы и следить за дедлайнами, — а не делает работу за них.',
   'It is not affiliated with any university, government or scholarship provider.':
     'Он не связан ни с одним университетом, правительством или стипендиальной организацией.',
   Contact: vw,
-  'This is a prototype built for a hackathon demonstration. Contact details for the project team will be published here before any public launch.':
-    'Это прототип, созданный для демонстрации на хакатоне. Контакты команды проекта будут опубликованы здесь перед публичным запуском.',
+  'Contact details for the project team have not been published yet.':
+    'Контактные данные команды проекта пока не опубликованы.',
   'For questions about a specific scholarship or university, contact that institution directly through its official website.':
     'По вопросам о конкретной стипендии или университете обращайтесь напрямую в это учреждение через его официальный сайт.',
   Privacy: bw,
-  'All information you enter is stored in your browser’s local storage on this device. EduBridge does not run accounts or a database in this prototype.':
-    'Вся введённая информация хранится в локальном хранилище браузера на этом устройстве. В этом прототипе EduBridge не использует аккаунты или базу данных.',
+  'Without an account, everything you enter stays in your browser. If you sign in, your profile, plans, drafts and settings are also saved on the EduBridge server, linked only to the id your sign-in provider gives us. You can download or delete them in Settings.':
+    'Без аккаунта всё, что вы вводите, остаётся в вашем браузере. Если вы входите, профиль, планы, черновики и настройки также сохраняются на сервере EduBridge и привязываются только к идентификатору, который даёт провайдер входа. Их можно скачать или удалить в Настройках.',
   'Files you choose are checked for type and size and are not stored or uploaded. Only file names are recorded for checklist items.':
     'Выбранные файлы проверяются на тип и размер и не сохраняются и не загружаются. Для пунктов чек-листа записываются только имена файлов.',
   'If you turn on live AI, your question and relevant profile details are sent to the AI provider to generate a reply.':
@@ -3166,7 +3170,7 @@ const mj = {
   '“Not verified” and “Not announced” shown plainly': '«Не проверено» и «Не объявлено» показываются прямо',
   'Your statement stays yours — the tutor coaches, it does not ghost-write':
     'Ваше письмо остаётся вашим — помощник подсказывает, а не пишет за вас',
-  'Your data stays in your browser in this prototype': 'В этом прототипе ваши данные остаются в вашем браузере',
+  'Your data stays in your browser unless you sign in': 'Если вы не входите в аккаунт, данные остаются в вашем браузере',
   info: zw,
   'Read the official information policy': 'Прочитать официальную информационную политику',
   'Start with what you know today': 'Начните с того, что знаете сегодня',
@@ -3462,8 +3466,8 @@ const mj = {
   'Replace file': 'Заменить файл',
   'Attach file': 'Прикрепить файл',
   'Remove file': 'Убрать файл',
-  'Prototype: only the file name is recorded. Nothing is uploaded.':
-    'Прототип: записывается только имя файла. Ничего не загружается.',
+  'Only the file name is recorded. Nothing is uploaded.':
+    'Записывается только имя файла. Ничего не загружается.',
   'Delete task': 'Удалить задачу',
   'Open writing tutor': 'Открыть помощника по эссе',
   'Add your own task': 'Добавить свою задачу',
@@ -3530,14 +3534,14 @@ const mj = {
   'What EduBridge stores': 'Что хранит EduBridge',
   'Your profile answers, saved opportunities, plans, tasks, calendar dates, drafts, budget scenarios and settings.':
     'Ответы профиля, сохранённые возможности, планы, задачи, даты в календаре, черновики, бюджетные сценарии и настройки.',
-  'Everything is kept in this browser’s local storage. Nothing is sent to an EduBridge server.':
-    'Всё хранится в локальном хранилище этого браузера. Ничего не отправляется на сервер EduBridge.',
+  'Without an account everything stays in this browser. When you sign in, your data is also saved on the EduBridge server; you can download or delete it in the Account card above.':
+    'Без аккаунта всё остаётся в этом браузере. Если вы входите, данные также сохраняются на сервере EduBridge; их можно скачать или удалить в карточке «Аккаунт» выше.',
   'Uploaded files are never stored: transcripts are checked and discarded; checklist attachments record only the file name.':
     'Загруженные файлы никогда не сохраняются: выписки проверяются и удаляются; во вложениях чек-листа записывается только имя файла.',
   'If you use live AI, your question and relevant profile details are sent to the AI provider to generate the answer.':
     'Если вы используете живой ИИ, ваш вопрос и нужные данные профиля отправляются провайдеру ИИ для ответа.',
-  'This prototype has no accounts and makes no claim of legal compliance.':
-    'В этом прототипе нет аккаунтов, и он не заявляет о соответствии законодательству.',
+  'Accounts store only your sign-in id. EduBridge makes no claim of legal compliance.':
+    'Аккаунты хранят только ваш идентификатор входа. EduBridge не заявляет о соответствии законодательству.',
   'Profile and data': 'Профиль и данные',
   'Edit my profile': 'Изменить мой профиль',
   'Switch to a demo student': 'Переключиться на демо-студента',
@@ -3963,8 +3967,8 @@ const mj = {
   'Upload your CV, motivation letter, personal statement, study plan, scholarship essay or a recommendation draft. You get an honest, evidence-based review — strengths, weaknesses with quotes, and what to fix first.':
     'Загрузите CV, мотивационное письмо, личное заявление, учебный план, эссе на стипендию или черновик рекомендации. Вы получите честный, основанный на доказательствах разбор — сильные стороны, слабые стороны с цитатами и что исправить в первую очередь.',
   'No documents yet': 'Документов пока нет',
-  'Documents stay in this browser. Nothing is sent to the AI until you ask for an analysis.':
-    'Документы остаются в этом браузере. ИИ ничего не получает, пока вы не попросите анализ.',
+  'Documents are saved in this browser, and in your account if you are signed in. Nothing is sent to the AI until you ask for an analysis.':
+    'Документы сохраняются в этом браузере и в вашем аккаунте, если вы вошли. Ничего не отправляется ИИ, пока вы не запросите анализ.',
   'Not analysed yet': 'Ещё не проанализирован',
   'Shared with chat': 'Доступен в чате',
   'Edited copy': 'Изменённая копия',

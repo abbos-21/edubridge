@@ -3,10 +3,17 @@ import { Kb, yh } from '../data/raw';
 
 const Lg = new Set([...Ug, 'EU', 'UZ', 'INT']);
 const Pg = new Set(['hwum-accounting-finance', 'hwum-msc-ibm', 'hwum-foundation-award']);
-export const Yo = [...yh.filter((e) => Lg.has(e.country) && !Pg.has(e.id)), ...Oj(yh)];
-export const Pu = [...Kb.filter((e) => Lg.has(e.country) && !Pg.has(e.id)), ...Rj()];
+const isDemoRecord = (e) => e.source?.verification_status === 'demo';
+const programsAll = [...yh.filter((e) => Lg.has(e.country) && !Pg.has(e.id)), ...Oj(yh)];
+const scholarshipsAll = [...Kb.filter((e) => Lg.has(e.country) && !Pg.has(e.id)), ...Rj()];
+/**
+ * Fictional demonstration records belong to the demo students only: they are never listed, matched or recommended to
+ * a real student. Lookups by id (below) still resolve them, because the demo students' saved items and plans use them.
+ */
+export const Yo = programsAll.filter((e) => !isDemoRecord(e));
+export const Pu = scholarshipsAll.filter((e) => !isDemoRecord(e));
 export const ii = [...Yo, ...Pu];
-const Hj = new Map(ii.map((e) => [e.id, e]));
+const Hj = new Map([...programsAll, ...scholarshipsAll].map((e) => [e.id, e]));
 export const he = (e) => Hj.get(e);
 export const we = {
   MY: {

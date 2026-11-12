@@ -365,8 +365,8 @@ export function HomePage() {
                 'Motivatsion xat sizniki — yordamchi o‘rgatadi, yozib bermaydi',
               ),
               n(
-                'Your data stays in your browser in this prototype',
-                'Ushbu prototipda ma’lumotlaringiz brauzeringizda qoladi',
+                'Your data stays in your browser unless you sign in',
+                'Kirmasangiz, ma’lumotlaringiz brauzeringizda qoladi',
               ),
             ].map((u) => (
               <li className="flex gap-2.5" key={u}>

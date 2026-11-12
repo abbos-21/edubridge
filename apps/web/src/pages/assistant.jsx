@@ -2790,8 +2790,8 @@ function Nq() {
           icon={<FileText size={26} />}
           title={a('No documents yet', 'Hali hujjat yo‘q')}
           body={a(
-            'Documents stay in this browser. Nothing is sent to the AI until you ask for an analysis.',
-            'Hujjatlar shu brauzerda qoladi. Tahlil so‘ramaguningizcha SI ga hech narsa yuborilmaydi.',
+            'Documents are saved in this browser, and in your account if you are signed in. Nothing is sent to the AI until you ask for an analysis.',
+            'Hujjatlar shu brauzerda, kirgan bo‘lsangiz akkauntingizda ham saqlanadi. Tahlil so‘ramaguningizcha SI ga hech narsa yuborilmaydi.',
           )}
         />
       ) : (

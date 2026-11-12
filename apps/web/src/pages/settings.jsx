@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSession } from '../sync/session';
 import { AccountPanel } from '../sync/AccountPanel';
 import * as jsxRuntime from 'react/jsx-runtime';
 import { Database, Languages, RefreshCcw, ShieldCheck, Sparkles, Trash2, UserRound } from 'lucide-react';
@@ -27,9 +28,11 @@ export function SettingsPage() {
     [c, p] = React.useState('checking'),
     d = cy(),
     [h, m] = React.useState(!1);
+  const session = useSession();
   React.useEffect(() => {
+    p('checking');
     Un().then(p);
-  }, []);
+  }, [session.status]);
   const y = ['UZS', 'EUR', 'GBP', 'MYR', 'TRY', 'HUF', 'KRW', 'JPY'];
   return (
     <div className="flex flex-col gap-5">
@@ -100,17 +103,15 @@ export function SettingsPage() {
             {l('AI assistance', 'SI yordami')}
           </p>
           <div className="flex flex-wrap items-center gap-2 text-[14px]">
-            <span>{l('Live AI provider:', 'Jonli SI manbasi:')}</span>
+            <span>{l('Live AI:', 'Jonli SI:')}</span>
             {c === 'checking' ? (
               <Badge>{l('Checking…', 'Tekshirilmoqda…')}</Badge>
-            ) : c === 'artifact' ? (
-              <Badge tone="ok">
-                {l('Available (Claude, through this page)', 'Mavjud (Claude, shu sahifa orqali)')}
-              </Badge>
             ) : c === 'server' ? (
-              <Badge tone="ok">{l('Available (server endpoint)', 'Mavjud (server)')}</Badge>
+              <Badge tone="ok">{l('Available', 'Mavjud')}</Badge>
+            ) : session.status !== 'user' ? (
+              <Badge tone="warn">{l('Sign in to use live AI', 'Jonli SI uchun kiring')}</Badge>
             ) : (
-              <Badge tone="warn">{l('Not configured', 'Sozlanmagan')}</Badge>
+              <Badge tone="warn">{l('Not available right now', 'Hozir mavjud emas')}</Badge>
             )}
           </div>
           <CmpHa
@@ -137,14 +138,6 @@ export function SettingsPage() {
               'Jonli SI bo‘lmasa, yordamchi va matn tahlili saqlangan ma’lumotlaringiz asosidagi qoidaga asoslangan javoblardan foydalanadi va “qoidaga asoslangan” deb belgilanadi. Moslik, talablar, muddatlar va byudjet hech qachon SI ga bog‘liq emas.',
             )}
           </Callout>
-          {c === 'artifact' && (
-            <p className="text-[12.5px] text-muted">
-              {l(
-                'When opened inside Claude, live answers use the viewer’s own Claude account and ask for permission the first time.',
-                'Claude ichida ochilganda jonli javoblar ko‘ruvchining Claude akkauntidan foydalanadi va birinchi marta ruxsat so‘raydi.',
-              )}
-            </p>
-          )}
         </Card>
         <Card className="flex flex-col gap-3 p-5">
           <p className="flex items-center gap-2 font-bold">
@@ -177,8 +170,8 @@ export function SettingsPage() {
             </li>
             <li>
               {l(
-                'Everything is kept in this browser’s local storage. Nothing is sent to an EduBridge server.',
-                'Hammasi shu brauzerning mahalliy xotirasida saqlanadi. EduBridge serveriga hech narsa yuborilmaydi.',
+                'Without an account everything stays in this browser. When you sign in, your data is also saved on the EduBridge server; you can download or delete it in the Account card above.',
+                'Akkauntsiz hamma narsa shu brauzerda qoladi. Kirsangiz, ma’lumotlaringiz EduBridge serverida ham saqlanadi; ularni yuqoridagi Akkaunt kartasida yuklab olish yoki o‘chirish mumkin.',
               )}
             </li>
             <li>
@@ -196,8 +189,8 @@ export function SettingsPage() {
           </ul>
           <p className="text-[12.5px] text-muted">
             {l(
-              'This prototype has no accounts and makes no claim of legal compliance.',
-              'Ushbu prototipda akkauntlar yo‘q va u qonunchilikka muvofiqlikni da’vo qilmaydi.',
+              'Accounts store only your sign-in id. EduBridge makes no claim of legal compliance.',
+              'Akkauntlar faqat kirish identifikatoringizni saqlaydi. EduBridge qonunchilikka muvofiqlikni da’vo qilmaydi.',
             )}
           </p>
         </Card>

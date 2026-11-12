@@ -127,8 +127,8 @@ function CmpHS() {
           <Logo onClick={() => e('home')} />
           <p className="mt-2 text-[13.5px] text-muted">
             {a(
-              'A prototype guidance tool for students from Uzbekistan. Always confirm requirements on official websites.',
-              'O‘zbekistonlik talabalar uchun yo‘l-yo‘riq vositasining prototipi. Talablarni doim rasmiy saytlarda tasdiqlang.',
+              'A guidance tool for students from Uzbekistan. Always confirm requirements on official websites.',
+              'O‘zbekistonlik talabalar uchun yo‘l-yo‘riq vositasi. Talablarni doim rasmiy saytlarda tasdiqlang.',
             )}
           </p>
         </div>

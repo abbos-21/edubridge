@@ -174,10 +174,10 @@ export function DataReviewPage() {
       />
       <div className="mb-5">
         <Callout tone="warn" icon={<ShieldAlert size={16} aria-hidden={!0} />}>
-          <b>{n('Prototype — no admin login.', 'Prototip — administrator kirishi yo‘q.')}</b>{' '}
+          <b>{n('Staff tools.', 'Xodimlar uchun vositalar.')}</b>{' '}
           {n(
-            'Hiding or marking a record here only changes what this browser shows. A real deployment must put these tools behind authenticated staff accounts on a server.',
-            'Bu yerda yozuvni yashirish yoki belgilash faqat shu brauzerda ko‘rinadigan narsani o‘zgartiradi. Haqiqiy tizimda bu vositalar serverda, tasdiqlangan xodim akkauntlari ortida bo‘lishi kerak.',
+            'Hiding a record or marking it reviewed is saved on the server and changes what every student sees. Every change is logged.',
+            'Yozuvni yashirish yoki ko‘rib chiqilgan deb belgilash serverda saqlanadi va barcha talabalar ko‘radigan narsani o‘zgartiradi. Har bir o‘zgarish qayd etiladi.',
           )}
         </Callout>
       </div>
@@ -497,8 +497,8 @@ export function Cmp$q({ id: e }) {
         title: t('About EduBridge', 'EduBridge haqida'),
         body: [
           t(
-            'EduBridge is a hackathon prototype that helps students from Uzbekistan plan applications to universities and scholarships abroad.',
-            'EduBridge — O‘zbekistonlik talabalarga xorijiy universitet va grantlarga ariza topshirishni rejalashtirishda yordam beradigan xakaton prototipi.',
+            'EduBridge helps students from Uzbekistan plan applications to universities and scholarships abroad.',
+            'EduBridge — O‘zbekistonlik talabalarga xorijiy universitet va grantlarga ariza topshirishni rejalashtirishda yordam beradi.',
           ),
           t(
             'It teaches students how to navigate the process — finding options, checking published requirements, preparing documents and tracking deadlines — rather than doing the work for them.',
@@ -514,8 +514,8 @@ export function Cmp$q({ id: e }) {
         title: t('Contact', 'Aloqa'),
         body: [
           t(
-            'This is a prototype built for a hackathon demonstration. Contact details for the project team will be published here before any public launch.',
-            'Bu xakaton namoyishi uchun yaratilgan prototip. Loyiha jamoasining aloqa ma’lumotlari ommaviy ishga tushirishdan oldin shu yerda e’lon qilinadi.',
+            'Contact details for the project team have not been published yet.',
+            'Loyiha jamoasining aloqa ma’lumotlari hali e’lon qilinmagan.',
           ),
           t(
             'For questions about a specific scholarship or university, contact that institution directly through its official website.',
@@ -527,8 +527,8 @@ export function Cmp$q({ id: e }) {
         title: t('Privacy', 'Maxfiylik'),
         body: [
           t(
-            'All information you enter is stored in your browser’s local storage on this device. EduBridge does not run accounts or a database in this prototype.',
-            'Kiritgan barcha ma’lumotlaringiz shu qurilmadagi brauzer xotirasida saqlanadi. Ushbu prototipda EduBridge akkaunt yoki ma’lumotlar bazasi yuritmaydi.',
+            'Without an account, everything you enter stays in your browser. If you sign in, your profile, plans, drafts and settings are also saved on the EduBridge server, linked only to the id your sign-in provider gives us. You can download or delete them in Settings.',
+            'Akkauntsiz kiritgan hamma narsangiz brauzeringizda qoladi. Kirsangiz, profil, reja, qoralama va sozlamalaringiz EduBridge serverida ham saqlanadi va faqat kirish provayderi bergan identifikatorga bog‘lanadi. Ularni Sozlamalarda yuklab olish yoki o‘chirish mumkin.',
           ),
           t(
             'Files you choose are checked for type and size and are not stored or uploaded. Only file names are recorded for checklist items.',
