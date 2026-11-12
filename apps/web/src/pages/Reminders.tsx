@@ -3,13 +3,14 @@ import { CalendarDays, Copy, Download, Send, Trash2 } from 'lucide-react';
 import { useI18n } from '../i18n/I18nProvider';
 import { api, ApiError } from '../lib/api';
 import { formatDate } from '../lib/format';
-import { useCollection, type Versioned } from '../ai/useCollection';
-import { Badge, Button, Card, Field, Input, Notice, Section } from '../components/ui';
+import { useNotices } from '../components/Notices';
+import { Badge, Button, Card, Field, Input, Notice, Section, Select } from '../components/ui';
+import { useStore } from '../store/AppStore';
+import { useCatalog } from '../data/CatalogProvider';
 
 type TgState = { botAvailable: boolean; botUsername: string | null; linked: boolean; optIn: boolean };
 type CalState = { feed: { active: boolean; createdAt?: string }; upcoming: Array<{ date: string; kind: string; title: string }>; total: number };
 type Rem = { id: string; dueAt: string; itemDate: string | null; title: string | null };
-type EventRow = Versioned & { data: { title?: string; date?: string } };
 
 /** Reminders, calendar and the student's own dates. Shown in Settings for signed-in students. */
 export function RemindersSection() {
@@ -127,31 +128,68 @@ function CalendarCard() {
 
 function MyDates() {
   const { tx, lang } = useI18n();
-  const events = useCollection<EventRow>('events');
+  // the same list the bell and the dashboard read, so a new date shows up there at once
+  const { events } = useNotices();
+  const { plans, saved } = useStore();
+  const cat = useCatalog();
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
+  const [opp, setOpp] = useState('');
+  const [editing, setEditing] = useState<string | null>(null);
+  const [draft, setDraft] = useState({ title: '', date: '', opp: '' });
   const [err, setErr] = useState<string | null>(null);
   const items = [...events.items].filter((e) => e.data?.date).sort((a, b) => a.data.date!.localeCompare(b.data.date!));
+  const nameOf = (id: string) => cat.universities.find((u) => u.id === id)?.name ?? cat.grants.find((g) => g.id === id)?.name ?? id;
+  const related = [...new Set([...plans.map((p) => p.oppId), ...saved])];
+  const relatedSelect = (value: string, onChange: (v: string) => void, label: string) => (
+    <Field label={label}>
+      <Select value={value} onChange={(e) => onChange(e.target.value)}>
+        <option value="">{tx('None', 'Yo‘q')}</option>
+        {related.map((id) => <option key={id} value={id}>{nameOf(id)}</option>)}
+      </Select>
+    </Field>
+  );
   return (
     <Card className="space-y-3">
       <h3 className="font-extrabold">{tx('My dates', 'Mening sanalarim')}</h3>
       <p className="text-sm text-muted">{tx('Add your own dates (a test, a visa appointment, a document deadline). They go into your calendar and reminders.', 'O‘zingizning sanalaringizni qo‘shing (imtihon, viza uchrashuvi, hujjat muddati). Ular kalendar va eslatmalaringizga tushadi.')}</p>
-      <form className="grid gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-end" onSubmit={async (e) => {
+      <form className="grid gap-2 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end" onSubmit={async (e) => {
         e.preventDefault();
         setErr(null);
-        try { await events.create({ data: { title: title.trim(), date } }); setTitle(''); setDate(''); } catch { setErr(tx('Could not save the date.', 'Sanani saqlab bo‘lmadi.')); }
+        if (!title.trim()) return setErr(tx('Give the event a title.', 'Tadbirga nom bering.'));
+        if (!date) return setErr(tx('Choose a date.', 'Sanani tanlang.'));
+        try { await events.create({ data: { title: title.trim(), date, ...(opp ? { oppId: opp } : {}) } }); setTitle(''); setDate(''); setOpp(''); } catch { setErr(tx('Could not save the date.', 'Sanani saqlab bo‘lmadi.')); }
       }}>
         <Field label={tx('What', 'Nima')}><Input required maxLength={120} value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
         <Field label={tx('Date', 'Sana')}><Input required type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
+        {relatedSelect(opp, setOpp, tx('Related opportunity', 'Bog‘liq imkoniyat'))}
         <Button type="submit" variant="primary" disabled={!title.trim() || !date}>{tx('Add', 'Qo‘shish')}</Button>
       </form>
       {err && <p role="alert" className="text-sm text-bad">{err}</p>}
       {items.length > 0 && (
         <ul className="divide-y divide-line text-sm">
           {items.map((e) => (
-            <li key={e.id} className="flex items-center justify-between gap-2 py-1">
-              <span>{formatDate(e.data.date, lang)} — {e.data.title}</span>
-              <Button size="sm" variant="ghost" aria-label={tx('Delete {0}', '{0} ni o‘chirish', e.data.title ?? '')} onClick={() => void events.remove(e.id)}><Trash2 size={14} aria-hidden /></Button>
+            <li key={e.id} className="py-1.5">
+              {editing === e.id ? (
+                <form className="grid gap-2 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end" onSubmit={async (ev) => {
+                  ev.preventDefault();
+                  if (!draft.title.trim() || !draft.date) return;
+                  try { await events.update(e.id, e.version, { data: { title: draft.title.trim(), date: draft.date, ...(draft.opp ? { oppId: draft.opp } : {}) } }); setEditing(null); } catch { setErr(tx('Could not save the date.', 'Sanani saqlab bo‘lmadi.')); }
+                }}>
+                  <Field label={tx('Edit title', 'Nomini tahrirlash')}><Input required maxLength={120} value={draft.title} onChange={(x) => setDraft({ ...draft, title: x.target.value })} /></Field>
+                  <Field label={tx('Edit date', 'Sanani tahrirlash')}><Input required type="date" value={draft.date} onChange={(x) => setDraft({ ...draft, date: x.target.value })} /></Field>
+                  {relatedSelect(draft.opp, (v) => setDraft({ ...draft, opp: v }), tx('Related opportunity', 'Bog‘liq imkoniyat'))}
+                  <span className="flex gap-1"><Button type="submit" variant="primary" size="sm">{tx('Save', 'Saqlash')}</Button><Button size="sm" onClick={() => setEditing(null)}>{tx('Cancel', 'Bekor qilish')}</Button></span>
+                </form>
+              ) : (
+                <div className="flex items-center justify-between gap-2">
+                  <span>{formatDate(e.data.date, lang)} — {e.data.title}{e.data.oppId ? <span className="text-muted"> · {nameOf(e.data.oppId)}</span> : null}</span>
+                  <span className="flex shrink-0">
+                    <Button size="sm" variant="ghost" onClick={() => { setEditing(e.id); setDraft({ title: e.data.title ?? '', date: e.data.date ?? '', opp: e.data.oppId ?? '' }); }}>{tx('Edit', 'Tahrirlash')}</Button>
+                    <Button size="sm" variant="ghost" aria-label={tx('Delete {0}', '{0} ni o‘chirish', e.data.title ?? '')} onClick={() => void events.remove(e.id)}><Trash2 size={14} aria-hidden /></Button>
+                  </span>
+                </div>
+              )}
             </li>
           ))}
         </ul>

@@ -4,6 +4,13 @@ import { useAuth } from '../auth/AuthProvider';
 import { STORAGE_KEY, useStore } from '../store/AppStore';
 import type { StudentProfile } from '../lib/profile';
 import type { GrowthPlan } from '../lib/growth/plan';
+import { fitWriting } from '../lib/workspace';
+
+type PlansDoc = { plans: unknown[]; budgets: unknown[] };
+type WritingDoc = { drafts: Record<string, unknown>; cv: string; roadmap: Record<string, boolean>; docChecks?: Record<string, boolean>; reminderDays?: number; comparisons?: unknown[]; guide?: string };
+type Key = 'settings' | 'profile' | 'growth' | 'plans' | 'writing';
+const NONE = { settings: null, profile: null, growth: null, plans: null, writing: null } as Record<Key, number | null>;
+const BLANK = { settings: '', saved: '', profile: '', growth: '', plans: '', writing: '' };
 
 type SyncStatus = 'idle' | 'syncing' | 'error';
 type Versioned<T> = { data: T; version: number };
@@ -36,11 +43,12 @@ export function CloudSyncProvider({ children }: { children: ReactNode }) {
   const hydrating = useRef<string | null>(null);
   const apply = store.applyRemote;
 
-  const versions = useRef<{ settings: number | null; profile: number | null; growth: number | null }>({ settings: null, profile: null, growth: null });
-  const lastSent = useRef<{ settings: string; saved: string; profile: string; growth: string }>({ settings: '', saved: '', profile: '', growth: '' });
+  const versions = useRef<Record<Key, number | null>>({ ...NONE });
+  const lastSent = useRef<Record<Key | 'saved', string>>({ ...BLANK });
 
   const settingsValue: Settings = useMemo(() => ({ lang: store.lang, theme: store.theme, compare: store.compare }), [store.lang, store.theme, store.compare]);
   const profileValue: StudentProfile | null = store.demo ? null : store.profile;
+  const ws = store.workspace;
 
   // ---------------------------------------------------------------- pull on sign-in
   const hydrate = useCallback(
@@ -55,24 +63,30 @@ export function CloudSyncProvider({ children }: { children: ReactNode }) {
             throw e;
           }
         };
-        const [settings, profile, growth, saved] = await Promise.all([
+        const [settings, profile, growth, plans, writing, saved] = await Promise.all([
           got<Settings>('/me/settings'),
           got<StudentProfile>('/me/profile'),
           got<GrowthPlan>('/me/growth'),
+          got<PlansDoc>('/me/plans'),
+          got<WritingDoc>('/me/writing'),
           api<{ items: Array<{ ref: string }> }>('/me/saved'),
         ]);
-        versions.current = { settings: settings?.version ?? null, profile: profile?.version ?? null, growth: growth?.version ?? null };
+        versions.current = { settings: settings?.version ?? null, profile: profile?.version ?? null, growth: growth?.version ?? null, plans: plans?.version ?? null, writing: writing?.version ?? null };
         if (settings) apply({ lang: settings.data.lang as never, theme: settings.data.theme as never, compare: settings.data.compare });
         if (saved.items.length || settings) apply({ saved: saved.items.map((i) => i.ref) });
         if (profile) apply({ profile: profile.data });
         if (growth) apply({ growth: growth.data });
+        if (plans) apply({ plansDoc: plans.data });
+        if (writing) apply({ writingDoc: writing.data });
 
         // Local data that the account does not have yet is OFFERED for upload, never uploaded silently.
         const localProfile = !store.demo && store.profile ? 1 : 0;
         const localGrowth = store.growth.items.length > 0 ? 1 : 0;
-        const offer = (!settings && (store.saved.length > 0 || store.compare.length > 0)) || (!profile && localProfile > 0) || (!growth && localGrowth > 0);
+        const localPlans = !store.demo && (store.plans.length > 0 || store.workspace.budgets.length > 0);
+        const localWriting = !store.demo && (Object.keys(store.workspace.drafts).length > 0 || store.workspace.cv.trim() !== '' || Object.keys(store.workspace.roadmap).length > 0 || Object.keys(store.workspace.docChecks).length > 0);
+        const offer = (!settings && (store.saved.length > 0 || store.compare.length > 0)) || (!profile && localProfile > 0) || (!growth && localGrowth > 0) || (!plans && localPlans) || (!writing && localWriting);
         setNeedsUpload(offer);
-        lastSent.current = { settings: '', saved: '', profile: '', growth: '' };
+        lastSent.current = { ...BLANK };
         setHydratedFor(userId);
         setStatus('idle');
       } catch {
@@ -88,7 +102,7 @@ export function CloudSyncProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!me) {
       setHydratedFor(null);
-      versions.current = { settings: null, profile: null, growth: null };
+      versions.current = { ...NONE };
       setNeedsUpload(false);
       return;
     }
@@ -102,7 +116,7 @@ export function CloudSyncProvider({ children }: { children: ReactNode }) {
 
   // ---------------------------------------------------------------- push on change
   /** Debounced write of one versioned resource; the server copy wins on a conflict. */
-  const usePush = <T,>(key: 'settings' | 'profile' | 'growth', path: string, value: T | null, onServer: (v: T) => void) => {
+  const usePush = <T,>(key: Key, path: string, value: T | null, onServer: (v: T) => void) => {
     const json = JSON.stringify(value);
     useEffect(() => {
       if (!ready || json === lastSent.current[key]) return;
@@ -138,6 +152,12 @@ export function CloudSyncProvider({ children }: { children: ReactNode }) {
   usePush<StudentProfile>('profile', '/me/profile', profileValue, (p) => apply({ profile: p }));
   usePush<GrowthPlan>('growth', '/me/growth', store.growth.items.length || versions.current.growth != null ? store.growth : null, (g) => apply({ growth: g }));
 
+  // plans + budgets, and writing (drafts, CV, roadmap): a fictional demo student's papers are never uploaded
+  const plansValue: PlansDoc | null = store.demo ? null : store.plans.length || ws.budgets.length || versions.current.plans != null ? { plans: store.plans.slice(0, 40), budgets: ws.budgets } : null;
+  const writingValue: WritingDoc | null = store.demo ? null : Object.keys(ws.drafts).length || ws.cv.trim() || Object.keys(ws.roadmap).length || Object.keys(ws.docChecks).length || ws.reminderDays !== 30 || ws.comparisons.length || ws.guide !== 'duo' || versions.current.writing != null ? fitWriting({ drafts: ws.drafts, cv: ws.cv, roadmap: ws.roadmap, docChecks: ws.docChecks, reminderDays: ws.reminderDays, comparisons: ws.comparisons, guide: ws.guide }) : null;
+  usePush<PlansDoc>('plans', '/me/plans', plansValue, (d) => apply({ plansDoc: d }));
+  usePush<WritingDoc>('writing', '/me/writing', writingValue, (d) => apply({ writingDoc: d }));
+
   // saved items are a plain set: last write wins
   const savedJson = JSON.stringify(store.saved);
   useEffect(() => {
@@ -168,6 +188,14 @@ export function CloudSyncProvider({ children }: { children: ReactNode }) {
       }
       if (store.demo) delete state.profile; // fictional data is never uploaded
       delete state.onboardingDraft;
+      const w = (state.workspace ?? {}) as { budgets?: unknown[]; drafts?: Record<string, unknown>; cv?: string; roadmap?: Record<string, boolean>; docChecks?: Record<string, boolean>; reminderDays?: number; comparisons?: unknown[]; guide?: string };
+      if (!store.demo) {
+        const plans = Array.isArray(state.plans) ? state.plans.slice(0, 40) : [];
+        if (plans.length || w.budgets?.length) state.plansDoc = { plans, budgets: w.budgets ?? [] };
+        if (Object.keys(w.drafts ?? {}).length || (w.cv ?? '').trim() || Object.keys(w.roadmap ?? {}).length || Object.keys(w.docChecks ?? {}).length || (w.reminderDays ?? 30) !== 30 || (w.comparisons ?? []).length || (w.guide ?? 'duo') !== 'duo') state.writingDoc = fitWriting({ drafts: (w.drafts ?? {}) as never, cv: w.cv ?? '', roadmap: w.roadmap ?? {}, docChecks: w.docChecks ?? {}, reminderDays: w.reminderDays, comparisons: (w.comparisons ?? []) as never, guide: w.guide as never });
+      }
+      delete state.plans;
+      delete state.workspace;
       const r = await api<{ imported: Record<string, number | boolean> }>('/me/import-local', { method: 'POST', body: { state } });
       setNeedsUpload(false);
       setHydratedFor(null);

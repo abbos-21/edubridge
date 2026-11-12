@@ -99,7 +99,7 @@ export function Onboarding({ edit }: { edit: boolean }) {
       if (Object.keys(e).length) { setErrors(e); setStep(s); setNote(tx('Some answers need fixing', 'Ayrim javoblarni tuzatish kerak')); return; }
     }
     store.setProfile(d);
-    navigate('adviser');
+    navigate('dashboard');
   };
 
   const toggleCountry = (key: 'preferredCountries' | 'avoidCountries', code: string) => {

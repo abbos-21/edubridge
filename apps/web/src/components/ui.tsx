@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react';
 import { AlertTriangle, Info } from 'lucide-react';
 
@@ -116,5 +117,19 @@ export function Section({ title, children, id }: { title: string; children: Reac
       <h2 id={id ? `${id}-h` : undefined} className="mb-3 text-[20px] font-extrabold">{title}</h2>
       {children}
     </section>
+  );
+}
+
+export function Textarea({ className, ...p }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea {...p} className={cx(control, 'min-h-[84px]', className)} />;
+}
+
+/** A thin progress bar. */
+export function Progress({ value, label, tone = 'teal' }: { value: number; label?: string; tone?: 'teal' | 'ok' }) {
+  const v = Math.max(0, Math.min(100, Math.round(value)));
+  return (
+    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={v} className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+      <div className={cx('h-full rounded-full', tone === 'ok' ? 'bg-ok' : 'bg-teal')} style={{ width: `${v}%` }} />
+    </div>
   );
 }

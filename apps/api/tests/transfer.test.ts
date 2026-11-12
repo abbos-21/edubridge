@@ -19,6 +19,8 @@ const guestState = () => ({
   displayCurrency: 'USD',
   profile: { name: 'Guest', gpa: 4.2 },
   growth: { plan: 'p' },
+  plansDoc: { plans: [{ id: 'p-1', oppId: 'usm-my', tasks: [] }], budgets: [{ id: 'b-9' }] },
+  writingDoc: { drafts: { 'usm-my': { text: 'my draft', answers: {}, revisions: [] } }, cv: 'my cv', roadmap: { 'bachelor-a': true } },
   saved: ['universiti-malaya-my', 'usm-my'],
   applications: [
     { id: 'app-1', opportunityId: 'usm-my', tasks: [] },
@@ -37,8 +39,13 @@ describe('POST /me/import-local', () => {
     ids.push(await c.login());
     const r = await c.post('/me/import-local', { state: guestState() });
     expect(r.statusCode).toBe(200);
-    expect(r.json().imported).toMatchObject({ profile: true, growth: true, settings: true, saved: 2, applications: 2, customEvents: 1, budgets: 1, chatThreads: 1, interviews: 1, advisorDocs: 1 });
+    expect(r.json().imported).toMatchObject({ profile: true, growth: true, plans: true, writing: true, settings: true, saved: 2, applications: 2, customEvents: 1, budgets: 1, chatThreads: 1, interviews: 1, advisorDocs: 1 });
     expect((await c.get('/me/profile')).json().data.name).toBe('Guest');
+    expect((await c.get('/me/plans')).json().data.plans[0].id).toBe('p-1');
+    expect((await c.get('/me/writing')).json().data.cv).toBe('my cv');
+    const exported = (await c.get('/me/export')).json();
+    expect(exported.plans.data.plans).toHaveLength(1);
+    expect(exported.writing.data.drafts['usm-my'].text).toBe('my draft');
     expect((await c.get('/me/settings')).json().data).toMatchObject({ lang: 'ru', theme: 'dark' });
     const apps = (await c.get('/me/applications')).json().items as Array<{ opportunityRef: string }>;
     expect(apps.map((a) => a.opportunityRef).sort()).toEqual(['ukm-my', 'usm-my']);

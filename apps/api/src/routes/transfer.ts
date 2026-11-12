@@ -38,9 +38,11 @@ export function registerTransferRoutes(app: FastifyInstance, d: { prisma: Prisma
   app.get('/me/export', async (req, reply) => {
     const { user } = requireAuth(req);
     const where = { userId: user.id };
-    const [profile, growth, settings, applications, events, budgets, chats, interviews, documents, saved, reminders] = await Promise.all([
+    const [profile, growth, planSet, writingSet, settings, applications, events, budgets, chats, interviews, documents, saved, reminders] = await Promise.all([
       prisma.profile.findUnique({ where }),
       prisma.growthPlan.findUnique({ where }),
+      prisma.planSet.findUnique({ where }),
+      prisma.writingSet.findUnique({ where }),
       prisma.userSettings.findUnique({ where }),
       prisma.application.findMany({ where }),
       prisma.customEvent.findMany({ where }),
@@ -58,6 +60,8 @@ export function registerTransferRoutes(app: FastifyInstance, d: { prisma: Prisma
       user: { id: user.id, lang: user.lang, createdAt: user.createdAt },
       profile: strip(profile),
       growth: strip(growth),
+      plans: strip(planSet),
+      writing: strip(writingSet),
       settings: strip(settings),
       applications: applications.map(strip),
       events: events.map(strip),
@@ -83,7 +87,7 @@ export function registerTransferRoutes(app: FastifyInstance, d: { prisma: Prisma
     const bump = (o: Record<string, number>, k: string, n = 1) => (o[k] = (o[k] ?? 0) + n);
 
     // singletons: only when the account has none yet
-    for (const [local, model, label] of [['profile', 'profile', 'profile'], ['growth', 'growthPlan', 'growth']] as const) {
+    for (const [local, model, label] of [['profile', 'profile', 'profile'], ['growth', 'growthPlan', 'growth'], ['plansDoc', 'planSet', 'plans'], ['writingDoc', 'writingSet', 'writing']] as const) {
       const v = state[local];
       if (!isObj(v) || !small(v)) continue;
       if (await prisma[model].findUnique({ where })) {

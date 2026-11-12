@@ -12,6 +12,8 @@ type Coll = { kind: 'coll'; path: string; body: object; changed: object };
 const RESOURCES: Array<Single | Coll> = [
   { kind: 'single', path: 'profile', body: { data: { name: 'A-secret', gpa: 4.5 } }, changed: { data: { name: 'HACKED' } } },
   { kind: 'single', path: 'growth', body: { data: { plan: 'A-plan' } }, changed: { data: { plan: 'HACKED' } } },
+  { kind: 'single', path: 'plans', body: { data: { plans: [{ id: 'A-plan-1' }], budgets: [] } }, changed: { data: { plans: [] } } },
+  { kind: 'single', path: 'writing', body: { data: { drafts: { x: { text: 'A-secret-draft' } }, cv: 'A-cv' } }, changed: { data: { drafts: {} } } },
   { kind: 'single', path: 'settings', body: { data: { lang: 'ru' } }, changed: { data: { lang: 'en' } } },
   { kind: 'coll', path: 'applications', body: { opportunityRef: 'uni-a', data: { tasks: ['A-task'] } }, changed: { opportunityRef: 'x', data: { tasks: ['HACKED'] } } },
   { kind: 'coll', path: 'events', body: { data: { title: 'A-event' } }, changed: { data: { title: 'HACKED' } } },
@@ -156,6 +158,8 @@ describe('deleting an account removes everything and touches nobody else', () =>
         sessions: await h.prisma.session.count(w),
         profile: await h.prisma.profile.count(w),
         growth: await h.prisma.growthPlan.count(w),
+        plans: await h.prisma.planSet.count(w),
+        writing: await h.prisma.writingSet.count(w),
         settings: await h.prisma.userSettings.count(w),
         applications: await h.prisma.application.count(w),
         events: await h.prisma.customEvent.count(w),

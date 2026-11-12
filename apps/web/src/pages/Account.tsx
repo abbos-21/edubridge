@@ -10,6 +10,8 @@ import { formatDate } from '../lib/format';
 import { href, navigate } from '../lib/router';
 import { LangSwitch, ThemeToggle } from '../components/common';
 import { Badge, Button, Card, Field, Input, Notice, Section } from '../components/ui';
+import { GUIDE_IMAGE } from '../lib/guide';
+import { GUIDES, type Guide } from '../lib/workspace';
 
 /**
  * Telegram's login button. Its script needs eval(), which the site's security policy forbids, so it runs in a tiny
@@ -228,6 +230,19 @@ export function Settings() {
 
       {me && <RemindersSection />}
 
+      <Section title={tx('Your EduBridge guide', 'Sizning EduBridge yo‘lboshchingiz')} id="guide">
+        <Card className="space-y-3">
+          <p className="text-sm text-muted">{tx('Pick the character who appears on the home page and in messages. Both give exactly the same help.', 'Bosh sahifa va xabarlarda ko‘rinadigan qahramonni tanlang. Ikkalasi ham aynan bir xil yordam beradi.')}</p>
+          <div role="radiogroup" aria-label={tx('Your EduBridge guide', 'Sizning EduBridge yo‘lboshchingiz')} className="flex flex-wrap gap-3">
+            {GUIDES.map((g: Guide) => (
+              <button key={g} type="button" role="radio" aria-checked={store.workspace.guide === g} onClick={() => store.patchWorkspace({ guide: g })} className={'flex w-36 flex-col items-center gap-2 rounded-xl border p-3 text-[13.5px] font-semibold ' + (store.workspace.guide === g ? 'border-navy bg-navy-soft' : 'border-line hover:bg-sunken')}>
+                <img src={GUIDE_IMAGE[g]} alt="" className="h-24 w-24 object-contain" />
+                {g === 'male' ? tx('Boy guide', 'Yigit yo‘lboshchi') : g === 'female' ? tx('Girl guide', 'Qiz yo‘lboshchi') : tx('No preference', 'Farqi yo‘q')}
+              </button>
+            ))}
+          </div>
+        </Card>
+      </Section>
       <Section title={tx('One-page summary', 'Bir sahifalik xulosa')} id="summary">
         <Card className="space-y-2">
           <p className="text-sm text-muted">{tx('Make an A4 summary of your targets, gaps, plan and deadlines to print, save as PDF or share as an image. It is made on this device.', 'Maqsadlar, bo‘shliqlar, reja va muddatlaringiz bo‘yicha A4 xulosa tuzing: chop eting, PDF qiling yoki rasm sifatida ulashing. U shu qurilmada yaratiladi.')}</p>

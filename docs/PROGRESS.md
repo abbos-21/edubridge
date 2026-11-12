@@ -240,3 +240,23 @@ Roles, the review workflow, the audit log, data-quality tools and saved demo ana
 
 ## Next
 **Phase 6 (programme-level data, F13)**, only if you want it: model and admin editing first, UI and matching after. And the pending decision on retiring the legacy layer.
+
+## Signed-in layout and dashboard (from the original app)
+- Once a student has a profile (or a demo student), every page except home, sign-in, info, demo, the wizard and admin uses the sidebar layout: top bar (language, theme, notification bell, account menu), a banner for guests ("local profile, not a protected account"), and a sidebar in three groups (Plan, Discover, Prepare). Code: `components/AppShell.tsx`, `components/Notices.tsx`.
+- `#dashboard`: greeting, profile completion, tiles (recommended universities, scholarship matches, deadlines within 30 days, saved, my dates), deadline list, quick actions, reminders note, recommendations. Code: `pages/Dashboard.tsx`, `lib/match.ts`, `lib/deadlines.ts`.
+- `#calendar`: confirmed deadlines of saved universities plus the student's own dates; signed-in students also get the calendar file, private link and Telegram settings there.
+- Matching uses only published numbers (level offered, subject, destination, IELTS when both exist). A missing value is "check", never a pass or a fail, and there is no admission probability.
+- The wizard and the demo now land on the dashboard.
+- Application plans (`#plans`, `#plan--id`, `pages/Plans.tsx`, `lib/plans.ts`): a checklist per university or grant with stages, priority, notes, own dates, requirements table, timeline and final review. Task dates are suggested only from a confirmed, sourced, still-open deadline. The checklist is general guidance (the catalogue has no per-record document lists), and required/"check if required" is marked honestly. Plans are stored in this browser, not in the account.
+- Budget planner (`#budget`): one currency per scenario, no exchange rates, missing is never zero, totals only when every line has a value; tuition is prefilled only from a sourced per-year or per-semester amount.
+- Preparation roadmap (`#roadmap`), glossary (`#glossary`) and writing tutor (`#writing`, rule-based and offline, never rewrites): ported from the original with the same wording.
+- Save and Add-to-plan buttons on university and scholarship pages (before this there was no way to save an item).
+- Account sync: plans and budgets (`/me/plans`), and drafts, CV text, roadmap and document ticks, saved comparisons, the bell window and the guide choice (`/me/writing`). Same rules as the profile: versioned, the server copy wins on a conflict, a guest's data is offered for upload at sign-in, a demo student's papers are never uploaded, included in the export and removed with the account. Migration `20261112120000_plans_writing`.
+- Documents page (`#documents`): eight document guides from the original with a remembered checklist and the plans that have a task for the document.
+- Calendar: month view, type filter, tasks due soon, tasks by application, editable own dates with a related opportunity, and how far ahead the bell looks.
+- Messages after actions (save, task done, stage) and plan milestone messages (halfway, all required tasks done, submitted).
+- Universities: match label for a student with a profile, sort by relevance or soonest confirmed deadline, hide those that may not fit. Compare: rows that differ are tinted; named comparisons can be saved.
+- Guide picker (boy, girl, both) in Settings, using the three images from the original.
+- Russian for the long texts (task checklist, roadmap, glossary, tutor feedback, documents), checked by `tests/ru-long.test.ts`.
+- Deliberately not ported: the original's "demo extraction" of a transcript (it showed made-up grades), exchange-rate conversion (no real rates), and its limit of four items in a comparison (the approved ToR says three).
+- Not ported: the 3-step "finder" wizard and a max-tuition filter (needs exchange rates); comparing scholarships side by side.

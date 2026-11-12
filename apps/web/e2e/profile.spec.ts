@@ -66,7 +66,7 @@ test.describe('onboarding wizard', () => {
     await expect(page.getByRole('heading', { name: 'Review' }).first()).toBeVisible();
     await expect(page.getByText('Test Student')).toBeVisible();
     await page.getByRole('button', { name: 'Save my profile' }).click();
-    await expect(page).toHaveURL(/#adviser$/);
+    await expect(page).toHaveURL(/#dashboard$/);
     await expect(page.getByText(/Test Student/).first()).toBeVisible();
     const st = await stored(page);
     expect(st.profile).toMatchObject({ name: 'Test Student', targetLevel: 'master', field: 'computing', score: 88.5, ielts: 6.5, totalBudget: 9000, preferredCountries: ['DE'] });
@@ -78,7 +78,7 @@ test.describe('onboarding wizard', () => {
     const { ctx, page } = await newPage(browser);
     await page.goto('/#demo');
     await page.getByRole('button', { name: 'Try demo' }).first().click();
-    await expect(page).toHaveURL(/#adviser$/);
+    await expect(page).toHaveURL(/#dashboard$/);
     // a demo profile is also editable, and saving turns it into a real (non-demo) profile
     await page.goto('/#onboarding--edit');
     await expect(page.getByRole('heading', { name: 'Edit your profile' })).toBeVisible();
@@ -87,7 +87,7 @@ test.describe('onboarding wizard', () => {
     await page.getByLabel('Name or preferred display name').fill('Renamed Student');
     await page.getByRole('button', { name: 'Review' }).click();
     await page.getByRole('button', { name: 'Save changes' }).click();
-    await expect(page).toHaveURL(/#adviser$/);
+    await expect(page).toHaveURL(/#dashboard$/);
     const st = await stored(page);
     expect(st.profile.name).toBe('Renamed Student');
     expect(st.demo).toBeNull();
@@ -102,8 +102,8 @@ test.describe('demo students', () => {
     await expect(page.getByText('fictional', { exact: true })).toHaveCount(3);
     await expect(page.getByText(/Dilnoza · ambitious school student/)).toBeVisible();
     await page.getByRole('button', { name: 'Try demo' }).first().click();
-    await expect(page).toHaveURL(/#adviser$/);
-    await expect(page.getByText('Dilnoza (demo)').first()).toBeVisible();
+    await expect(page).toHaveURL(/#dashboard$/);
+    await expect(page.getByRole('heading', { name: /Dilnoza/ })).toBeVisible();
     await expect(page.getByText('Demo mode: you are using a fictional student.')).toBeVisible();
     await page.getByRole('button', { name: 'Exit demo' }).click();
     await expect(page.getByText('Demo mode: you are using a fictional student.')).toHaveCount(0);
@@ -115,7 +115,7 @@ test.describe('demo students', () => {
     const { ctx, page } = await newPage(browser);
     await page.goto('/?present=1#demo');
     await page.getByRole('button', { name: 'Try demo' }).first().click();
-    await expect(page.getByText('Dilnoza (demo)').first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Dilnoza/ })).toBeVisible();
     await expect(page.getByText('Demo mode: you are using a fictional student.')).toHaveCount(0);
     await ctx.close();
   });
@@ -125,7 +125,7 @@ test.describe('demo students', () => {
     await login(page);
     await page.goto('/#demo');
     await page.getByRole('button', { name: 'Try demo' }).first().click();
-    await expect(page.getByText('Dilnoza (demo)').first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Dilnoza/ })).toBeVisible();
     await page.waitForTimeout(2500); // longer than the sync delay
     expect((await page.request.get('/api/v1/me/profile')).status()).toBe(404);
     await ctx.close();
@@ -137,7 +137,8 @@ test.describe('profile builder', () => {
     const { ctx, page } = await newPage(browser);
     await page.goto('/#demo');
     await page.getByRole('button', { name: 'Try demo' }).nth(which).click();
-    await expect(page).toHaveURL(/#adviser$/);
+    await expect(page).toHaveURL(/#dashboard$/);
+    await page.goto('/#adviser');
     return { ctx, page };
   }
 
@@ -243,8 +244,9 @@ test.describe('profile and plan in the account', () => {
     await a.page.getByLabel('Name or preferred display name').fill('Sync Student');
     for (let i = 0; i < 6; i++) await a.page.getByRole('button', { name: 'Next' }).click();
     await a.page.getByRole('button', { name: 'Save my profile' }).click();
-    await expect(a.page).toHaveURL(/#adviser$/);
+    await expect(a.page).toHaveURL(/#dashboard$/);
     await expect.poll(async () => (await a.page.request.get('/api/v1/me/profile')).status(), { timeout: 10_000 }).toBe(200);
+    await a.page.goto('/#adviser');
     await a.page.getByRole('tab', { name: 'Ideas' }).click();
     await a.page.getByRole('button', { name: 'Add to my plan' }).first().click();
     await expect.poll(async () => ((await (await a.page.request.get('/api/v1/me/growth')).json()).data?.items ?? []).length, { timeout: 10_000 }).toBe(1);
@@ -267,6 +269,7 @@ test.describe('AI coach (mock model)', () => {
     await login(page);
     await page.goto('/#demo');
     await page.getByRole('button', { name: 'Try demo' }).first().click();
+    await page.goto('/#adviser');
     await page.getByRole('tab', { name: 'AI coach' }).click();
     const bodies: any[] = [];
     page.on('request', (r) => { if (r.url().endsWith('/ai/json')) bodies.push(r.postDataJSON()); });
@@ -288,6 +291,7 @@ test.describe('AI coach (mock model)', () => {
     const { ctx, page } = await newPage(browser);
     await page.goto('/#demo');
     await page.getByRole('button', { name: 'Try demo' }).first().click();
+    await page.goto('/#adviser');
     await page.getByRole('tab', { name: 'AI coach' }).click();
     await expect(page.getByRole('heading', { name: 'Sign in to use the AI advisor' })).toBeVisible();
     await page.getByRole('tab', { name: 'Profile check' }).click();

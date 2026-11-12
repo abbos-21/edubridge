@@ -1,11 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Award, Check, ExternalLink, GitCompareArrows, MapPin, Moon, Plus, Sun, SunMoon, X } from 'lucide-react';
+import { Award, Bookmark, BookmarkCheck, Check, ExternalLink, GitCompareArrows, MapPin, Moon, Plus, Sun, SunMoon, X } from 'lucide-react';
 import { LANGS, TIER_INFO, type Lang, type Tier, type University } from '@edubridge/shared';
 import { useI18n } from '../i18n/I18nProvider';
 import { useStore } from '../store/AppStore';
 import { useCatalog, useCatalogState } from '../data/CatalogProvider';
 import { formatDate, hostOf, isHttp } from '../lib/format';
 import { href } from '../lib/router';
+import { useToast } from './Toasts';
 import { Badge, Button, Notice, buttonClass, cx } from './ui';
 
 /** "Not confirmed on an official page": a missing value is never shown as zero, free or empty. */
@@ -64,6 +65,21 @@ export function QsLine({ u }: { u: University }) {
   const v = u.ranking?.value;
   if (v == null) return <span className="text-muted">{tx('position not confirmed', 'o‘rni tasdiqlanmagan')}</span>;
   return <span>QS 2027 {v}</span>;
+}
+
+/** Saves a university or grant: its confirmed deadline then shows in the calendar, the dashboard and the bell. */
+export function SaveButton({ id }: { id: string }) {
+  const { tx } = useI18n();
+  const { saved, toggleSaved } = useStore();
+  const notify = useToast();
+  const on = saved.includes(id);
+  const Icon = on ? BookmarkCheck : Bookmark;
+  return (
+    <Button aria-pressed={on} onClick={() => { toggleSaved(id); notify(on ? tx('Removed from saved', 'Saqlanganlardan olib tashlandi') : tx('Saved — it now appears on your dashboard and calendar', 'Saqlandi — endi u panel va taqvimda ko‘rinadi')); }}>
+      <Icon size={16} aria-hidden />
+      {on ? tx('Saved', 'Saqlangan') : tx('Save', 'Saqlash')}
+    </Button>
+  );
 }
 
 export function CompareButton({ id, compact }: { id: string; compact?: boolean }) {

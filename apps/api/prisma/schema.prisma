@@ -80,6 +80,8 @@ model User {
   advisorDocs   AdvisorDoc[]
   interviews    Interview[]
   growthPlan    GrowthPlan?
+  planSet       PlanSet?
+  writingSet    WritingSet?
   reminders     Reminder[]
   settings      UserSettings?
   telegramLink  TelegramLink?
@@ -232,6 +234,24 @@ model Interview {
 }
 
 model GrowthPlan {
+  userId    String   @id @db.Uuid
+  data      Json
+  version   Int      @default(1)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Application plans and budget scenarios of one student (one JSON document, versioned like the profile).
+model PlanSet {
+  userId    String   @id @db.Uuid
+  data      Json
+  version   Int      @default(1)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Writing drafts (with revisions), CV text and roadmap ticks of one student.
+model WritingSet {
   userId    String   @id @db.Uuid
   data      Json
   version   Int      @default(1)

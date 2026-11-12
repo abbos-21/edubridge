@@ -59,7 +59,8 @@ test.describe('reminders and calendar in Settings', () => {
 
     await page.getByRole('button', { name: 'Turn the link off' }).click();
     await expect(page.getByText(/private link is active/)).toHaveCount(0);
-    expect((await anon.request.get(feedPath)).status()).toBe(404);
+    // the link is revoked on the server a moment after the click
+    await expect.poll(async () => (await anon.request.get(feedPath)).status(), { timeout: 5000 }).toBe(404);
     await anon.close();
     await ctx.close();
   });
@@ -81,7 +82,7 @@ test.describe('one-page summary', () => {
     const unis: Array<{ id: string }> = (await (await page.request.get('/api/v1/catalog/universities')).json()).items;
     await page.goto('/#demo');
     await page.getByRole('button', { name: 'Try demo' }).first().click();
-    await expect(page).toHaveURL(/#adviser$/);
+    await expect(page).toHaveURL(/#dashboard$/);
     await page.evaluate(([saved, planned]) => {
       const s = JSON.parse(localStorage.getItem('edubridge:v1') ?? '{}');
       s.saved = saved;

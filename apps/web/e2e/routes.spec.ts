@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 const ROUTES = [
   'home', 'countries', 'country--MY', 'country--TR', 'universities', 'universities--advanced',
   'uni--universiti-malaya-my', 'uni--tu-darmstadt-de', 'unicompare--universiti-malaya-my,usm-my,ukm-my',
-  'scholarships', 'scholarship--mtcp', 'scholarship--gks-u', 'scholarship--chevening', 'info--sources', 'info--privacy', 'summary', 'signin', 'settings', 'onboarding', 'demo', 'adviser', 'assistant', 'assistant--docs', 'assistant--interview', 'assistant--report', 'does-not-exist',
+  'scholarships', 'scholarship--mtcp', 'scholarship--gks-u', 'scholarship--chevening', 'info--sources', 'info--privacy', 'summary', 'signin', 'settings', 'onboarding', 'demo', 'dashboard', 'calendar', 'plans', 'documents', 'budget', 'roadmap', 'glossary', 'writing', 'adviser', 'assistant', 'assistant--docs', 'assistant--interview', 'assistant--report', 'does-not-exist',
 ];
 const VIEWPORTS = [{ name: 'phone', width: 390, height: 844 }, { name: 'desktop', width: 1280, height: 900 }];
 

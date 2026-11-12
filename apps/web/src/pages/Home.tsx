@@ -6,7 +6,7 @@ import { formatDate } from '../lib/format';
 import { Badge, buttonClass, cx } from '../components/ui';
 import { useStore } from '../store/AppStore';
 import copy from './home-copy.json';
-import mascot from '../assets/mascot.webp';
+import { GUIDE_IMAGE } from '../lib/guide';
 
 /** Counters are computed from the catalogue data — never hard-coded. */
 export function catalogueCounters(data: { universities: Array<{ lastChecked?: string | null }>; grants: Array<{ kind: string }>; countries: unknown[] }) {
@@ -28,9 +28,10 @@ export function Home() {
   const { tx, lang, pick } = useI18n();
   const data = useCatalog();
   const c = catalogueCounters(data);
-  const { profile } = useStore();
+  const { profile, workspace } = useStore();
+  const guide = workspace.guide;
   const k = (i: number) => COPY[i]![lang];
-  const startHref = profile ? href('adviser') : href('onboarding');
+  const startHref = profile ? href('dashboard') : href('onboarding');
 
   const problems: Array<[LucideIcon, number]> = [[Layers, 32], [CalendarClock, 34], [SearchX, 36], [Wallet, 38], [FileStack, 40]];
   const features: Array<{ icon: LucideIcon; title: string; text: string }> = [
@@ -60,7 +61,7 @@ export function Home() {
             </a>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href={startHref} className={cx(buttonClass('primary', 'lg'), '!text-navy-ink')}>
-                {profile ? tx('Profile builder', 'Profil quruvchisi') : k(4)} <Icon i={ArrowRight} />
+                {profile ? tx('Open my dashboard', 'Boshqaruv panelimni ochish') : k(4)} <Icon i={ArrowRight} />
               </a>
               <a href={href('countries')} className={buttonClass('secondary', 'lg')}>{k(5)}</a>
             </div>
@@ -76,8 +77,8 @@ export function Home() {
               {k(7)}
               <span aria-hidden="true" className="absolute -bottom-[7px] left-8 h-3 w-3 rotate-45 border-b border-r border-line bg-surface" />
             </div>
-            <div role="img" aria-label={tx('EduBridge guides: an Uzbek boy in a doppi and an Uzbek girl in a hijab and doppi', 'EduBridge yo‘lboshchilari: do‘ppi kiygan o‘zbek bola va hijob va do‘ppi kiygan o‘zbek qiz')} className="relative -mt-1 h-[260px] w-full max-w-[360px] select-none sm:h-[380px] sm:max-w-[460px] lg:h-[420px] lg:max-w-[480px]">
-              <img src={mascot} alt="" draggable={false} width={480} height={420} className="guide-float h-full w-full object-contain object-bottom drop-shadow-[0_18px_22px_rgba(12,24,52,0.18)]" />
+            <div role="img" aria-label={guide === 'male' ? tx('EduBridge guide: a smiling Uzbek boy in a doppi and hoodie, waving', 'EduBridge yo‘lboshchisi: doppi va xudi kiygan, qo‘l silkitayotgan o‘zbek yigit') : guide === 'female' ? tx('EduBridge guide: a smiling Uzbek girl in a hijab and embroidered doppi, waving', 'EduBridge yo‘lboshchisi: ro‘mol va kashtali doppi kiygan, qo‘l silkitayotgan o‘zbek qiz') : tx('EduBridge guides: an Uzbek boy in a doppi and an Uzbek girl in a hijab and doppi', 'EduBridge yo‘lboshchilari: do‘ppi kiygan o‘zbek bola va hijob va do‘ppi kiygan o‘zbek qiz')} className="relative -mt-1 h-[260px] w-full max-w-[360px] select-none sm:h-[380px] sm:max-w-[460px] lg:h-[420px] lg:max-w-[480px]">
+              <img src={GUIDE_IMAGE[guide]} alt="" draggable={false} width={480} height={420} className="guide-float h-full w-full object-contain object-bottom drop-shadow-[0_18px_22px_rgba(12,24,52,0.18)]" />
             </div>
           </div>
         </div>
@@ -197,7 +198,7 @@ export function Home() {
         <h2 className="text-[24px] font-extrabold md:text-[28px]">{k(78)}</h2>
         <p className="mx-auto mt-2 max-w-lg text-muted">{k(79)}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <a href={startHref} className={cx(buttonClass('primary'), '!text-navy-ink')}>{profile ? tx('Profile builder', 'Profil quruvchisi') : k(80)}</a>
+          <a href={startHref} className={cx(buttonClass('primary'), '!text-navy-ink')}>{profile ? tx('Open my dashboard', 'Boshqaruv panelimni ochish') : k(80)}</a>
           <a href={href('demo')} className={buttonClass('secondary')}><Icon i={FlaskConical} />{k(81)}</a>
         </div>
       </section>

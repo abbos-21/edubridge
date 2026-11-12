@@ -6,7 +6,9 @@ import { href } from '../lib/router';
 import { formatDate, isHttp, isPast } from '../lib/format';
 import type { GrantRecord } from '../lib/types';
 import { Badge, Card, Field, Notice, PageHeader, Select, Tabs } from '../components/ui';
-import { ExternalLinkText, NotConfirmed, SourceNote } from '../components/common';
+import { ExternalLinkText, NotConfirmed, SaveButton, SourceNote } from '../components/common';
+import { AddToPlan } from './Plans';
+import { grantOpp } from '../lib/plans';
 
 /** A localised text object {en, uz}; legacy records may hold {} or other shapes. */
 const isL = (x: unknown): x is L => !!x && typeof x === 'object' && typeof (x as L).en === 'string' && (x as L).en.length > 0;
@@ -158,6 +160,7 @@ export function GrantDetail({ id }: { id: string | null }) {
         </div>
         <h1 className="mt-2 text-[26px] font-extrabold leading-tight md:text-[30px]">{g.name}</h1>
         {isL(g.provider) && <p className="text-muted">{pick(g.provider)}</p>}
+        <div className="mt-3 flex flex-wrap items-center gap-2"><SaveButton id={g.id} /><AddToPlan opp={grantOpp(g)} /></div>
       </header>
 
       <Notice>{tx('These are grant conditions, separate from university entry requirements.', 'Bu grant shartlari, universitetga kirish talablaridan alohida.')}</Notice>

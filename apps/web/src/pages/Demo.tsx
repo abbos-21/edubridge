@@ -37,7 +37,7 @@ export function Demo({ param }: { param?: string | null }) {
               <Badge tone="warn">{tx('fictional', 'to‘qima')}</Badge>
               <h2 className="font-extrabold">{pick(p.label)}</h2>
               <p className="text-sm text-muted">{pick(p.blurb)}</p>
-              <Button className="mt-auto" variant={active ? 'secondary' : 'primary'} onClick={() => { store.startDemo(p.key, normalizeProfile(p.profile)!); navigate('adviser'); }}>
+              <Button className="mt-auto" variant={active ? 'secondary' : 'primary'} onClick={() => { store.startDemo(p.key, normalizeProfile(p.profile)!); navigate('dashboard'); }}>
                 {active ? tx('Continue with this student', 'Shu talaba bilan davom etish') : tx('Try demo', 'Namoyishni sinash')}
               </Button>
             </Card>

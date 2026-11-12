@@ -16,7 +16,7 @@ const uuid = z.uuid();
 
 type Row = Record<string, any>;
 
-type SingletonCfg = { path: string; model: 'profile' | 'growthPlan' | 'userSettings' };
+type SingletonCfg = { path: string; model: 'profile' | 'growthPlan' | 'userSettings' | 'planSet' | 'writingSet' };
 type CollectionCfg = {
   path: string;
   model: 'application' | 'customEvent' | 'budget' | 'chatThread' | 'interview' | 'advisorDoc';
@@ -31,6 +31,8 @@ type CollectionCfg = {
 export const SINGLETONS: SingletonCfg[] = [
   { path: 'profile', model: 'profile' },
   { path: 'growth', model: 'growthPlan' },
+  { path: 'plans', model: 'planSet' },
+  { path: 'writing', model: 'writingSet' },
   { path: 'settings', model: 'userSettings' },
 ];
 

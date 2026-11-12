@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { isLang, type Lang } from '@edubridge/shared';
 import { normalizeProfile, type StudentProfile } from '../lib/profile';
 import type { GrowthPlan } from '../lib/growth/plan';
+import { GUIDES, emptyWorkspace, legacyWorkspace, normalizeComparisons, normalizeBudgets, normalizeDrafts, normalizeRoadmap, normalizeWorkspace, type Workspace } from '../lib/workspace';
+import { normalizePlans, type Plan, type Priority, type Stage, type Task } from '../lib/plans';
 
 export type Theme = 'system' | 'light' | 'dark';
 
@@ -19,12 +21,16 @@ export type AppState = {
   demo: string | null;
   /** The profile-builder plan: chosen ideas and their start months. */
   growth: GrowthPlan;
+  /** Application plans (a checklist per university or grant). Kept in this browser. */
+  plans: Plan[];
+  /** Budget scenarios, statement drafts, CV text and roadmap ticks. */
+  workspace: Workspace;
 };
 
 export const STORAGE_KEY = 'edubridge:v1';
 export const MAX_COMPARE = 3;
 
-export const initial = (): AppState => ({ lang: 'uz', theme: 'system', compare: [], saved: [], profile: null, onboardingDraft: null, demo: null, growth: { items: [] } });
+export const initial = (): AppState => ({ lang: 'uz', theme: 'system', compare: [], saved: [], profile: null, onboardingDraft: null, demo: null, growth: { items: [] }, plans: [], workspace: emptyWorkspace() });
 
 function load(): AppState {
   const base = initial();
@@ -42,6 +48,8 @@ function load(): AppState {
       onboardingDraft: normalizeProfile(parsed.onboardingDraft),
       demo: typeof parsed.demo === 'string' ? parsed.demo : null,
       growth: normalizeGrowth(parsed.growth),
+      plans: normalizePlans(parsed.plans),
+      workspace: parsed.workspace ? normalizeWorkspace(parsed.workspace) : { ...emptyWorkspace(), ...Object.fromEntries(Object.entries(legacyWorkspace()).filter(([, v]) => v && (Array.isArray(v) ? v.length : typeof v === 'string' ? v : Object.keys(v as object).length))) },
     };
   } catch {
     return base; // private window / blocked storage / corrupt value
@@ -75,13 +83,21 @@ type Store = AppState & {
   toggleSaved: (id: string) => void;
   resetAll: () => void;
   /** Apply data that came from the server (account sync). Unknown/invalid fields are ignored. */
-  applyRemote: (patch: Partial<Pick<AppState, 'lang' | 'theme' | 'compare' | 'saved' | 'profile' | 'growth'>>) => void;
+  applyRemote: (patch: Partial<Pick<AppState, 'lang' | 'theme' | 'compare' | 'saved' | 'profile' | 'growth'>> & { plansDoc?: unknown; writingDoc?: unknown }) => void;
   setProfile: (p: StudentProfile) => void;
   clearProfile: () => void;
   saveDraft: (p: StudentProfile | null) => void;
   startDemo: (key: string, profile: StudentProfile) => void;
   exitDemo: () => void;
   setGrowth: (g: GrowthPlan) => void;
+  patchWorkspace: (patch: Partial<Workspace>) => void;
+  addPlan: (plan: Plan) => void;
+  removePlan: (id: string) => void;
+  setStage: (id: string, stage: Stage) => void;
+  setPriority: (id: string, priority: Priority) => void;
+  updateTask: (planId: string, taskId: string, patch: Partial<Task>) => void;
+  addTask: (planId: string, task: Task) => void;
+  removeTask: (planId: string, taskId: string) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -135,13 +151,23 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           // a profile/plan that arrives from the account replaces a local demo student
           ...('profile' in patch ? { profile: normalizeProfile(patch.profile), demo: null } : {}),
           ...('growth' in patch ? { growth: normalizeGrowth(patch.growth) } : {}),
+          ...('plansDoc' in patch ? { plans: normalizePlans((patch.plansDoc as { plans?: unknown } | null)?.plans), workspace: { ...s.workspace, budgets: normalizeBudgets((patch.plansDoc as { budgets?: unknown } | null)?.budgets) } } : {}),
+          ...('writingDoc' in patch ? { workspace: { ...s.workspace, drafts: normalizeDrafts((patch.writingDoc as { drafts?: unknown } | null)?.drafts), cv: typeof (patch.writingDoc as { cv?: unknown } | null)?.cv === 'string' ? ((patch.writingDoc as { cv: string }).cv) : '', roadmap: normalizeRoadmap((patch.writingDoc as { roadmap?: unknown } | null)?.roadmap), docChecks: normalizeRoadmap((patch.writingDoc as { docChecks?: unknown } | null)?.docChecks), reminderDays: [7, 14, 30, 60].includes((patch.writingDoc as { reminderDays?: number } | null)?.reminderDays as number) ? ((patch.writingDoc as { reminderDays: number }).reminderDays) : 30, comparisons: normalizeComparisons((patch.writingDoc as { comparisons?: unknown } | null)?.comparisons), guide: (GUIDES as unknown[]).includes((patch.writingDoc as { guide?: unknown } | null)?.guide) ? ((patch.writingDoc as { guide: never }).guide) : 'duo' } } : {}),
         })),
       setProfile: (profile) => setState((s) => ({ ...s, profile: { ...profile, completedAt: profile.completedAt ?? new Date().toISOString().slice(0, 10) }, onboardingDraft: null, demo: null })),
       clearProfile: () => setState((s) => ({ ...s, profile: null, onboardingDraft: null, demo: null, growth: { items: [] } })),
       saveDraft: (onboardingDraft) => setState((s) => ({ ...s, onboardingDraft })),
-      startDemo: (key, profile) => setState((s) => ({ ...s, profile, demo: key, onboardingDraft: null, growth: { items: [] } })),
-      exitDemo: () => setState((s) => ({ ...s, profile: null, demo: null, growth: { items: [] } })),
+      startDemo: (key, profile) => setState((s) => ({ ...s, profile, demo: key, onboardingDraft: null, growth: { items: [] }, plans: [] })),
+      exitDemo: () => setState((s) => ({ ...s, profile: null, demo: null, growth: { items: [] }, plans: [] })),
       setGrowth: (growth) => setState((s) => ({ ...s, growth })),
+      patchWorkspace: (patch) => setState((s) => ({ ...s, workspace: { ...s.workspace, ...patch } })),
+      addPlan: (plan) => setState((s) => (s.plans.some((p) => p.oppId === plan.oppId && p.level === plan.level) ? s : { ...s, plans: [...s.plans, plan] })),
+      removePlan: (id) => setState((s) => ({ ...s, plans: s.plans.filter((p) => p.id !== id) })),
+      setStage: (id, stage) => setState((s) => ({ ...s, plans: s.plans.map((p) => (p.id === id ? { ...p, stage } : p)) })),
+      setPriority: (id, priority) => setState((s) => ({ ...s, plans: s.plans.map((p) => (p.id === id ? { ...p, priority } : p)) })),
+      updateTask: (planId, taskId, patch) => setState((s) => ({ ...s, plans: s.plans.map((p) => (p.id === planId ? { ...p, tasks: p.tasks.map((t) => (t.id === taskId ? { ...t, ...patch } : t)) } : p)) })),
+      addTask: (planId, task) => setState((s) => ({ ...s, plans: s.plans.map((p) => (p.id === planId ? { ...p, tasks: [...p.tasks, task] } : p)) })),
+      removeTask: (planId, taskId) => setState((s) => ({ ...s, plans: s.plans.map((p) => (p.id === planId ? { ...p, tasks: p.tasks.filter((t) => t.id !== taskId) } : p)) })),
       resetAll: () => {
         try {
           localStorage.removeItem(STORAGE_KEY);

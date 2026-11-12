@@ -5,7 +5,9 @@ import { useCatalog } from '../data/CatalogProvider';
 import { href } from '../lib/router';
 import { formatDate, formatMoney, isHttp, isPast } from '../lib/format';
 import { Badge, Card, Notice, Tabs } from '../components/ui';
-import { CompareButton, ExternalLinkText, NotConfirmed, QsLine, SourceNote, TierBadge, useSubjectLabel } from '../components/common';
+import { AddToPlan } from './Plans';
+import { uniOpp } from '../lib/plans';
+import { CompareButton, SaveButton, ExternalLinkText, NotConfirmed, QsLine, SourceNote, TierBadge, useSubjectLabel } from '../components/common';
 
 const isL = (x: unknown): x is L => !!x && typeof x === 'object' && typeof (x as L).en === 'string' && (x as L).en.length > 0;
 
@@ -238,7 +240,7 @@ export function UniProfile({ id }: { id: string | null }) {
         </div>
         <h1 className="text-[26px] font-extrabold leading-tight md:text-[30px]">{u.name}</h1>
         <p className="text-muted">{u.city}{u.campus && isL(u.campus) ? ` · ${pick(u.campus)}` : ''}</p>
-        <div className="flex flex-wrap gap-2"><CompareButton id={u.id} /></div>
+        <div className="flex flex-wrap items-center gap-2"><SaveButton id={u.id} /><CompareButton id={u.id} />{(u.levels[level]?.open === 'yes' || u.levels[level]?.open === 'integrated') && <AddToPlan opp={uniOpp(u, level)} />}</div>
       </header>
 
       <div className="grid gap-3 md:grid-cols-2">

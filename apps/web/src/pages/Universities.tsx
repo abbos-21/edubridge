@@ -6,6 +6,10 @@ import { useCatalog } from '../data/CatalogProvider';
 import { href } from '../lib/router';
 import { Button, Card, Field, Input, PageHeader, Select } from '../components/ui';
 import { UniCard, useSubjectLabel } from '../components/common';
+import { useStore } from '../store/AppStore';
+import { matchStatus, type MatchStatus } from '../lib/match';
+import { confirmedDeadlines } from '../lib/deadlines';
+import { Badge } from '../components/ui';
 
 const SUBJECTS = ['business', 'computing', 'engineering', 'medicine', 'humanities', 'law', 'education', 'natural', 'social', 'arts', 'economics', 'agriculture'];
 
@@ -14,11 +18,29 @@ export function Universities({ advanced }: { advanced: boolean }) {
   const data = useCatalog();
   const [f, setF] = useState<UniFilter>({});
   const [ielts, setIelts] = useState('');
+  const { profile } = useStore();
+  const [sort, setSort] = useState<'default' | 'relevance' | 'deadline'>('default');
+  const [hideUnlikely, setHideUnlikely] = useState(false);
 
   const withGrant = useMemo(() => new Set(data.grants.filter((g) => g.kind === 'national').map((g) => g.country)), [data.grants]);
   const languages = useMemo(() => [...new Set(data.universities.flatMap((u) => u.languages))].sort(), [data.universities]);
   const filter: UniFilter = { ...f, ielts: ielts.trim() !== '' && !Number.isNaN(Number(ielts)) ? Number(ielts) : undefined };
   const hits = useMemo(() => searchUniversities(data.universities, filter, withGrant), [data.universities, f, ielts, withGrant]); // eslint-disable-line react-hooks/exhaustive-deps
+  const status = useMemo(() => new Map<string, MatchStatus>(profile ? data.universities.map((u) => [u.id, matchStatus(profile, u)]) : []), [profile, data.universities]);
+  const nextDeadline = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const d of confirmedDeadlines(data.universities, data.universities.map((u) => u.id))) if (!m.has(d.uniId)) m.set(d.uniId, d.date);
+    return m;
+  }, [data.universities]);
+  const rank: Record<MatchStatus, number> = { good: 0, check: 1, add_scores: 2, unlikely: 3 };
+  const shown = useMemo(() => {
+    let l = hits;
+    if (profile && hideUnlikely) l = l.filter((h) => status.get(h.university.id) !== 'unlikely');
+    if (profile && sort === 'relevance') l = [...l].sort((a, b) => rank[status.get(a.university.id) ?? 'check'] - rank[status.get(b.university.id) ?? 'check']);
+    if (sort === 'deadline') l = [...l].sort((a, b) => (nextDeadline.get(a.university.id) ?? '9999').localeCompare(nextDeadline.get(b.university.id) ?? '9999'));
+    return l;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hits, profile, hideUnlikely, sort, status, nextDeadline]);
   const set = (patch: Partial<UniFilter>) => setF((p) => ({ ...p, ...patch }));
   const active = Object.values(f).some((v) => v !== undefined && v !== '' && v !== false) || ielts !== '';
 
@@ -109,19 +131,36 @@ export function Universities({ advanced }: { advanced: boolean }) {
             {tx('IELTS is compared only with minimums confirmed for the whole university. Programme-specific values are shown on the university page, never generalised.', 'IELTS faqat butun universitet uchun tasdiqlangan minimum bilan solishtiriladi. Dasturga xos qiymatlar universitet sahifasida ko‘rsatiladi, umumlashtirilmaydi.')}
           </p>
         )}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label={tx('Sort by', 'Saralash')}>
+            <Select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
+              <option value="default">{tx('Catalogue order', 'Katalog tartibi')}</option>
+              {profile && <option value="relevance">{tx('Relevance to my profile', 'Profilimga mosligi')}</option>}
+              <option value="deadline">{tx('Deadline (soonest confirmed)', 'Muddat (eng yaqin tasdiqlangan)')}</option>
+            </Select>
+          </Field>
+          {profile && (
+            <label className="flex min-h-[44px] items-end gap-2 pb-2 text-sm">
+              <input type="checkbox" className="h-5 w-5" checked={hideUnlikely} onChange={(e) => setHideUnlikely(e.target.checked)} />
+              {tx('Hide those that may not fit my profile', 'Profilimga mos kelmasligi mumkinlarini yashirish')}
+            </label>
+          )}
+        </div>
         <div className="flex items-center justify-between gap-3">
-          <p role="status" className="text-sm font-semibold">{tx('{0} universities', '{0} ta universitet', hits.length)}</p>
-          {active && <Button size="sm" onClick={() => { setF({}); setIelts(''); }}>{tx('Reset filters', 'Filtrlarni tiklash')}</Button>}
+          <p role="status" className="text-sm font-semibold">{tx('{0} universities', '{0} ta universitet', shown.length)}</p>
+          {(active || hideUnlikely || sort !== 'default') && <Button size="sm" onClick={() => { setF({}); setIelts(''); setHideUnlikely(false); setSort('default'); }}>{tx('Reset filters', 'Filtrlarni tiklash')}</Button>}
         </div>
       </Card>
 
-      {hits.length === 0 ? (
+      {!profile && <p className="text-[13px] text-muted">{tx('You are browsing without a profile. Create one to see which published requirements you appear to meet.', 'Siz profilsiz ko‘ryapsiz. E’lon qilingan talablarning qaysilariga mos ekaningizni ko‘rish uchun profil yarating.')} <a href={href('onboarding')}>{tx('Build my profile', 'Profilimni yaratish')} →</a></p>}
+      {shown.length === 0 ? (
         <p className="py-6 text-center text-muted">{tx('No university matches these filters. Try removing one.', 'Bu filtrlarga mos universitet yo‘q. Birini olib tashlab ko‘ring.')}</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {hits.map((h) => (
+          {shown.map((h) => (
             <div key={h.university.id} className="flex h-full flex-col gap-1">
               <UniCard u={h.university} />
+              {profile && <MatchBadge s={status.get(h.university.id) ?? 'check'} />}
               {h.ieltsStatus && (
                 <p className="px-1 text-xs text-muted">
                   {h.ieltsStatus === 'meets' && tx('Your IELTS meets the confirmed minimum.', 'IELTS ballingiz tasdiqlangan minimumga mos.')}
@@ -135,4 +174,15 @@ export function Universities({ advanced }: { advanced: boolean }) {
       )}
     </div>
   );
+}
+
+function MatchBadge({ s }: { s: MatchStatus }) {
+  const { tx } = useI18n();
+  const map: Record<MatchStatus, { tone: 'ok' | 'neutral' | 'warn' | 'info'; text: string }> = {
+    good: { tone: 'ok', text: tx('Good match for you', 'Siz uchun yaxshi moslik') },
+    check: { tone: 'info', text: tx('Looks possible — check the requirements', 'Mumkin ko‘rinadi — talablarni tekshiring') },
+    add_scores: { tone: 'neutral', text: tx('Add your scores to check', 'Tekshirish uchun ballaringizni kiriting') },
+    unlikely: { tone: 'warn', text: tx('May not fit your profile', 'Profilingizga mos kelmasligi mumkin') },
+  };
+  return <Badge tone={map[s].tone} className="self-start">{map[s].text}</Badge>;
 }

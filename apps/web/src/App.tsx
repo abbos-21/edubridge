@@ -7,6 +7,16 @@ import { CloudSyncProvider } from './sync/CloudSync';
 import { Settings, SignIn } from './pages/Account';
 import { useRoute } from './lib/router';
 import { Layout } from './components/Layout';
+import { AppShell } from './components/AppShell';
+import { NoticesProvider } from './components/Notices';
+import { ToastProvider } from './components/Toasts';
+import { Dashboard } from './pages/Dashboard';
+import { Calendar } from './pages/Calendar';
+import { PlanDetail, PlansPage } from './pages/Plans';
+import { Glossary, Roadmap } from './pages/Prepare';
+import { Budget } from './pages/Budget';
+import { Writing } from './pages/Writing';
+import { Documents } from './pages/Documents';
 import { CatalogGate } from './components/common';
 import { Home } from './pages/Home';
 import { CountryPage, Countries } from './pages/Countries';
@@ -57,6 +67,15 @@ function Pages() {
     case 'adviser': return <Adviser />;
     case 'demo': return <Demo param={param} />;
     case 'summary': return <Summary />;
+    case 'dashboard': return <Dashboard />;
+    case 'calendar': return <Calendar />;
+    case 'plans': return <PlansPage />;
+    case 'glossary': return <Glossary />;
+    case 'roadmap': return <Roadmap />;
+    case 'budget': return <Budget param={param} />;
+    case 'writing': return <Writing param={param} />;
+    case 'documents': return <Documents />;
+    case 'plan': return <PlanDetail id={param ?? ''} />;
     case 'admin': return <Admin tab={param} />;
     case 'signin': return <SignIn />;
     case 'settings': return <Settings />;
@@ -71,17 +90,23 @@ function Pages() {
   }
 }
 
+/** Pages that keep the public header even after a student has a profile. */
+const PUBLIC_PAGES = new Set(['home', 'signin', 'info', 'demo', 'onboarding', 'admin']);
+
 function Shell() {
   useTheme();
-  return (
-    <Layout banner={<DemoBanner />}>
-      <CatalogGate>
-        <Suspense fallback={<p role="status" className="py-10 text-center text-muted">…</p>}>
-          <Pages />
-        </Suspense>
-      </CatalogGate>
-    </Layout>
+  const { page } = useRoute();
+  const { profile } = useStore();
+  const body = (
+    <CatalogGate>
+      <Suspense fallback={<p role="status" className="py-10 text-center text-muted">…</p>}>
+        <Pages />
+      </Suspense>
+    </CatalogGate>
   );
+  // As in the original app: once a student has a profile, the sidebar layout takes over.
+  if (profile && !PUBLIC_PAGES.has(page)) return <AppShell>{body}</AppShell>;
+  return <Layout banner={<DemoBanner />}>{body}</Layout>;
 }
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -109,7 +134,11 @@ export default function App() {
           <AuthProvider>
             <CloudSyncProvider>
               <CatalogProvider>
-                <Shell />
+                <ToastProvider>
+                  <NoticesProvider>
+                    <Shell />
+                  </NoticesProvider>
+                </ToastProvider>
               </CatalogProvider>
             </CloudSyncProvider>
           </AuthProvider>
